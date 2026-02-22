@@ -38,10 +38,12 @@ function secondLanguageColor(languages: GitHubLanguages, dominant: string | null
   return getLanguageColor(second?.[0] ?? null);
 }
 
-function normalizeSizes(planets: { size: number }[]): void {
+function normalizeSizesPower(planets: { size: number }[]): void {
   const max = Math.max(...planets.map((p) => p.size), 1);
   for (const p of planets) {
-    p.size = p.size / max;
+    // Power curve: squishes small planets smaller, keeps big ones big
+    const normalized = p.size / max;
+    p.size = Math.pow(normalized, 0.5); // sqrt gives more dramatic spread than linear
   }
 }
 
@@ -83,11 +85,13 @@ export function buildSolarSystem(
     const activity = activityScore(repo);
     const type = determinePlanetType(repo.stargazers_count, activity);
 
-    // Size: rocky by activity, gaseous by stars
+    // Size: use raw counts directly (not log) for dramatic contrast
+    // Rocky: dominated by repo size (kb) as commit proxy
+    // Gaseous: dominated by stars
     const rawSize =
       type === "gaseous"
-        ? Math.log10(repo.stargazers_count + 1) * 0.5 + activity * 0.2
-        : activity * 0.7 + Math.log10(repo.size + 1) * 0.1;
+        ? Math.pow(repo.stargazers_count + 1, 0.6) + activity * 10
+        : Math.pow(repo.size + 1, 0.5) + activity * 15;
 
     return {
       id: repo.id,
@@ -107,13 +111,13 @@ export function buildSolarSystem(
       hasRing: repo.stargazers_count >= RING_STAR_THRESHOLD,
       hasMoon: repo.forks_count >= MOON_FORK_THRESHOLD,
       axialTilt: ((repo.id * 1.618) % 1) * 0.6, // deterministic 0–0.6 rad
-      orbitRadius: 3 + i * 1.2,
-      orbitSpeed: 0.05 / (1 + i * 0.15),
+      orbitRadius: 6 + i * 2.2,
+      orbitSpeed: 4.0 / Math.pow(6 + i * 2.2, 1.5), // Kepler: T ∝ r^1.5
       activityScore: activity,
     };
   });
 
-  normalizeSizes(planets);
+  normalizeSizesPower(planets);
 
   return {
     star,

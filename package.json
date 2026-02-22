@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@react-three/postprocessing": "^3.0.4",
     "@types/three": "^0.183.1",
     "html-to-image": "^1.11.13",
     "next": "16.1.6",
