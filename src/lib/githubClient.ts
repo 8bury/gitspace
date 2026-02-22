@@ -1,4 +1,4 @@
-import { GitHubUser, GitHubRepo, GitHubLanguages } from "@/types";
+import { GitHubUser, GitHubRepo, GitHubLanguages, GitHubCommit } from "@/types";
 
 const BASE_URL = "https://api.github.com";
 
@@ -49,4 +49,45 @@ export async function fetchLanguages(
   fullName: string
 ): Promise<GitHubLanguages> {
   return get<GitHubLanguages>(`/repos/${fullName}/languages`);
+}
+
+interface FetchRepoCommitsOptions {
+  since?: string;
+  perPage?: number;
+  maxPages?: number;
+}
+
+export async function fetchRepoCommits(
+  owner: string,
+  repo: string,
+  options: FetchRepoCommitsOptions = {}
+): Promise<GitHubCommit[]> {
+  const { since, perPage = 100, maxPages = 3 } = options;
+  const commits: GitHubCommit[] = [];
+
+  for (let page = 1; page <= maxPages; page++) {
+    const params = new URLSearchParams({
+      per_page: String(perPage),
+      page: String(page),
+    });
+
+    if (since) params.set("since", since);
+
+    try {
+      const batch = await get<GitHubCommit[]>(
+        `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits?${params.toString()}`
+      );
+
+      commits.push(...batch);
+      if (batch.length < perPage) break;
+    } catch (err) {
+      if (err instanceof Error && err.message === "GITHUB_ERROR_409") {
+        // Empty repository or no default branch yet.
+        return [];
+      }
+      throw err;
+    }
+  }
+
+  return commits;
 }

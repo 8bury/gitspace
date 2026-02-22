@@ -636,7 +636,6 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [selectedPlanet, setSelectedPlanet] = useState<Planet | null>(null);
   const [showOrbits, setShowOrbits] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
-  const [showLegend, setShowLegend] = useState(false);
 
   function handlePlanetClick(planet: Planet, pos: THREE.Vector3) {
     void pos;
@@ -718,22 +717,43 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
           marginBottom: "8px",
         }}>STELLAR OBJECT</div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-          <div style={{
-            width: 8, height: 8,
-            background: system.star.color,
-            boxShadow: `0 0 8px ${system.star.color}`,
-            borderRadius: "50%",
-            flexShrink: 0,
-          }} />
-          <span style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 600,
-            fontSize: "15px",
-            letterSpacing: "0.06em",
-            textTransform: "uppercase",
-            color: "#e8edf2",
-          }}>{system.star.name ?? system.star.username}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "8px" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={system.star.avatarUrl}
+            alt={`Avatar de ${system.star.username}`}
+            width={30}
+            height={30}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              objectFit: "cover",
+              border: "1px solid rgba(0,229,255,0.35)",
+              boxShadow: "0 0 10px rgba(0,229,255,0.18)",
+              flexShrink: 0,
+            }}
+          />
+          <div style={{ display: "flex", alignItems: "center", gap: "7px", minWidth: 0 }}>
+            <div style={{
+              width: 8, height: 8,
+              background: system.star.color,
+              boxShadow: `0 0 8px ${system.star.color}`,
+              borderRadius: "50%",
+              flexShrink: 0,
+            }} />
+            <span style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 600,
+              fontSize: "15px",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+              color: "#e8edf2",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}>{system.star.name ?? system.star.username}</span>
+          </div>
         </div>
 
         <div style={{
@@ -784,12 +804,19 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
         }} />
 
         <div style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "11px",
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "rgba(0,229,255,0.55)",
-        }}>NAVIGATION</div>
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "rgba(0,229,255,0.55)",
+          }}>NAVIGATION</div>
+          <LegendPanel />
+        </div>
 
         <button
           onClick={() => setShowOrbits((v) => !v)}
@@ -846,37 +873,6 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
           />
         </div>
 
-        <button
-          onClick={() => setShowLegend((v) => !v)}
-          style={{
-            background: "none",
-            border: "none",
-            padding: 0,
-            cursor: "pointer",
-            fontFamily: "var(--font-mono)",
-            fontSize: "12px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: showLegend ? "rgba(0,229,255,0.8)" : "rgba(140,160,180,0.5)",
-            textAlign: "left",
-            transition: "color 0.2s",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-          }}
-          onMouseEnter={(e) => { if (!showLegend) e.currentTarget.style.color = "rgba(180,200,220,0.8)"; }}
-          onMouseLeave={(e) => { if (!showLegend) e.currentTarget.style.color = "rgba(140,160,180,0.5)"; }}
-        >
-          <span style={{
-            display: "inline-block",
-            width: 8, height: 8,
-            border: "1px solid currentColor",
-            position: "relative",
-          }}>
-            {showLegend && <span style={{ position: "absolute", inset: 2, background: "#00e5ff" }} />}
-          </span>
-          LEGEND
-        </button>
       </div>
 
       {/* Ranking */}
@@ -888,8 +884,6 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       {/* Sidebar — selected planet detail */}
       <PlanetSidebar planet={selectedPlanet} onClose={() => setSelectedPlanet(null)} />
 
-      {/* Legend panel */}
-      <LegendPanel visible={showLegend} onClose={() => setShowLegend(false)} />
     </div>
   );
 }

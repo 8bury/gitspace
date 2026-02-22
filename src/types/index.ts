@@ -27,6 +27,36 @@ export interface GitHubLanguages {
   [language: string]: number; // bytes of code
 }
 
+export interface GitHubCommit {
+  sha: string;
+  html_url: string;
+  commit: {
+    message: string;
+    author: {
+      name: string;
+      date: string | null;
+    } | null;
+  };
+  author: {
+    login: string;
+  } | null;
+}
+
+export interface RepoCommitPoint {
+  date: string; // YYYY-MM-DD
+  count: number;
+}
+
+export interface RepoCommitActivity {
+  owner: string;
+  repo: string;
+  windowDays: number;
+  totalCommits: number;
+  newestCommitAt: string | null;
+  oldestCommitAt: string | null;
+  points: RepoCommitPoint[];
+}
+
 // Domain types
 
 export type PlanetType = "rocky" | "gaseous" | "icy";

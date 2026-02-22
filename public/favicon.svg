@@ -1,45 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="GitSpace">
-  <defs>
-    <radialGradient id="bg" cx="30%" cy="28%" r="85%">
-      <stop offset="0%" stop-color="#0b2231" />
-      <stop offset="60%" stop-color="#04101a" />
-      <stop offset="100%" stop-color="#02070d" />
-    </radialGradient>
-    <radialGradient id="star" cx="50%" cy="50%" r="60%">
-      <stop offset="0%" stop-color="#9cf6ff" />
-      <stop offset="55%" stop-color="#00e5ff" />
-      <stop offset="100%" stop-color="#00a6cc" />
-    </radialGradient>
-  </defs>
-
-  <rect width="64" height="64" rx="12" fill="url(#bg)" />
-
-  <circle cx="32" cy="32" r="7.4" fill="url(#star)" />
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" role="img" aria-label="GitSpace">
+  <circle cx="14" cy="14" r="4" fill="#00e5ff" opacity="0.9" />
   <ellipse
-    cx="32"
-    cy="32"
-    rx="21"
-    ry="9"
+    cx="14"
+    cy="14"
+    rx="12"
+    ry="5"
     fill="none"
     stroke="#00e5ff"
-    stroke-width="2"
-    opacity="0.88"
-    transform="rotate(-24 32 32)"
+    stroke-width="1"
+    opacity="0.5"
+    transform="rotate(-20 14 14)"
   />
-
   <ellipse
-    cx="32"
-    cy="32"
-    rx="15.5"
-    ry="6.5"
+    cx="14"
+    cy="14"
+    rx="12"
+    ry="5"
     fill="none"
-    stroke="#72f3ff"
-    stroke-width="1.6"
-    opacity="0.45"
-    transform="rotate(37 32 32)"
+    stroke="#00e5ff"
+    stroke-width="1"
+    opacity="0.25"
+    transform="rotate(40 14 14)"
   />
-
-  <circle cx="49.2" cy="27.5" r="2.4" fill="#b7fbff" />
-  <circle cx="15.8" cy="38.7" r="1.8" fill="#78ecff" opacity="0.9" />
+  <circle cx="14" cy="14" r="13" fill="none" stroke="#00e5ff" stroke-width="0.5" opacity="0.2" />
 </svg>

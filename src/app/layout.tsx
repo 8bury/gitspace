@@ -5,9 +5,9 @@ export const metadata: Metadata = {
   title: "GitSpace — Your GitHub as a Solar System",
   description: "Explore your GitHub profile as an interactive 3D solar system.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: [{ url: "/favicon.svg?v=2", type: "image/svg+xml" }],
+    shortcut: ["/favicon.svg?v=2"],
+    apple: [{ url: "/favicon.svg?v=2" }],
   },
 };
 

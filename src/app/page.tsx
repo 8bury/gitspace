@@ -148,25 +148,31 @@ export default function Home() {
           <button
             onClick={handleBack}
             style={{
+              position: "absolute",
+              left: "16px",
+              top: "50%",
+              transform: "translateY(-50%)",
               fontFamily: "var(--font-mono)",
               fontSize: "10px",
               letterSpacing: "0.18em",
               textTransform: "uppercase",
-              color: "rgba(0,229,255,0.6)",
-              background: "transparent",
-              border: "1px solid rgba(0,229,255,0.2)",
-              padding: "4px 12px",
+              color: "rgba(0,229,255,0.7)",
+              background: "rgba(2, 8, 14, 0.72)",
+              border: "1px solid rgba(0,229,255,0.22)",
+              padding: "6px 10px",
               cursor: "pointer",
               borderRadius: "2px",
               transition: "all 0.15s",
+              backdropFilter: "blur(8px)",
+              zIndex: 10,
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLButtonElement).style.color = "#00e5ff";
               (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,229,255,0.6)";
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = "rgba(0,229,255,0.6)";
-              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,229,255,0.2)";
+              (e.currentTarget as HTMLButtonElement).style.color = "rgba(0,229,255,0.7)";
+              (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(0,229,255,0.22)";
             }}
           >
             ← GALAXY
