@@ -39,6 +39,7 @@ export interface Star {
   dominantLanguage: string | null;
   color: string; // hex color based on dominant language
   followers: number;
+  size: number; // normalized star radius
 }
 
 export interface Planet {
@@ -55,11 +56,14 @@ export interface Planet {
 
   // Visual properties
   type: PlanetType;
-  size: number;        // normalized 0–1
-  color: string;       // hex
+  size: number;          // normalized 0–1
+  color: string;         // hex — dominant language
+  secondaryColor: string; // hex — second language (for mixed surface)
   hasRing: boolean;
-  orbitRadius: number; // distance from star
-  orbitSpeed: number;  // radians per second
+  hasMoon: boolean;      // true when forks >= MOON_FORK_THRESHOLD
+  axialTilt: number;     // radians, deterministic per planet
+  orbitRadius: number;   // distance from star
+  orbitSpeed: number;    // radians per second
   activityScore: number; // proxy for commit frequency
 }
 

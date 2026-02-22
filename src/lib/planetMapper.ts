@@ -3,6 +3,7 @@ import { getLanguageColor } from "./languageColors";
 
 // Thresholds (configurable)
 const RING_STAR_THRESHOLD = 50;
+const MOON_FORK_THRESHOLD = 10;
 const GAS_GIANT_STAR_RATIO = 3; // stars-per-activity score to be gaseous
 
 function activityScore(repo: GitHubRepo): number {
@@ -29,6 +30,12 @@ function dominantLanguage(languages: GitHubLanguages): string | null {
   const entries = Object.entries(languages);
   if (entries.length === 0) return null;
   return entries.sort((a, b) => b[1] - a[1])[0][0];
+}
+
+function secondLanguageColor(languages: GitHubLanguages, dominant: string | null): string {
+  const entries = Object.entries(languages).sort((a, b) => b[1] - a[1]);
+  const second = entries.find(([lang]) => lang !== dominant);
+  return getLanguageColor(second?.[0] ?? null);
 }
 
 function normalizeSizes(planets: { size: number }[]): void {
@@ -67,6 +74,7 @@ export function buildSolarSystem(
     dominantLanguage: starLang,
     color: getLanguageColor(starLang),
     followers: user.followers,
+    size: Math.min(1 + Math.log10(Math.max(user.followers, 1)) * 0.25, 2.2),
   };
 
   const planets: Planet[] = sorted.map((repo, i) => {
@@ -95,7 +103,10 @@ export function buildSolarSystem(
       type,
       size: Math.max(rawSize, 0.05),
       color: getLanguageColor(domLang),
+      secondaryColor: secondLanguageColor(langs, domLang),
       hasRing: repo.stargazers_count >= RING_STAR_THRESHOLD,
+      hasMoon: repo.forks_count >= MOON_FORK_THRESHOLD,
+      axialTilt: ((repo.id * 1.618) % 1) * 0.6, // deterministic 0–0.6 rad
       orbitRadius: 3 + i * 1.2,
       orbitSpeed: 0.05 / (1 + i * 0.15),
       activityScore: activity,
