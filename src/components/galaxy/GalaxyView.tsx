@@ -131,6 +131,7 @@ function SystemPanel({
 
       {/* Avatar + name */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={entry.avatarUrl}
           alt={entry.username}
@@ -222,12 +223,18 @@ export default function GalaxyView({ entries, onSystemExplore, focusedUsername }
 
   // Auto-select and track newly added system
   useEffect(() => {
-    if (focusedUsername) {
+    if (!focusedUsername) return;
+
+    const selectTimer = setTimeout(() => {
       setSelectedUsername(focusedUsername);
       setNewlyAdded(focusedUsername);
-      const t = setTimeout(() => setNewlyAdded(null), 600);
-      return () => clearTimeout(t);
-    }
+    }, 0);
+    const clearPulseTimer = setTimeout(() => setNewlyAdded(null), 600);
+
+    return () => {
+      clearTimeout(selectTimer);
+      clearTimeout(clearPulseTimer);
+    };
   }, [focusedUsername]);
 
   // Selected system's world position for camera focus

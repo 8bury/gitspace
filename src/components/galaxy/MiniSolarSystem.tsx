@@ -66,7 +66,6 @@ export default function MiniSolarSystem({ entry, position, onSelect, sizeScale, 
 
   const orbitRadii = useMemo(
     () => Array.from({ length: orbitCount }, (_, i) => orbitStart + i * orbitSpacing),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [orbitCount, orbitStart, orbitSpacing]
   );
 

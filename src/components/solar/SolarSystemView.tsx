@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useMemo, useEffect, useCallback } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { OrbitControls, Stars, Torus, Html, Billboard } from "@react-three/drei";
 import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
@@ -18,6 +18,11 @@ extend({ Line_: THREE.Line });
 const HI_SPHERE = new THREE.SphereGeometry(1, 64, 64);
 const MED_SPHERE = new THREE.SphereGeometry(1, 48, 48);
 const SM_SPHERE = new THREE.SphereGeometry(1, 16, 16);
+
+function stableNoise(seed: number): number {
+  const x = Math.sin(seed * 12.9898) * 43758.5453123;
+  return x - Math.floor(x);
+}
 
 // ─── Procedural texture ───────────────────────────────────────────────────────
 
@@ -257,12 +262,14 @@ function ShootingStar() {
 function AsteroidBelt({ innerRadius, outerRadius, count = 60 }: { innerRadius: number; outerRadius: number; count?: number }) {
   const asteroids = useMemo(() => {
     return Array.from({ length: count }, (_, i) => {
-      const r = innerRadius + Math.random() * (outerRadius - innerRadius);
-      const angle = Math.random() * Math.PI * 2;
-      const y = (Math.random() - 0.5) * 1.5;
-      const speed = (0.02 + Math.random() * 0.03) * (Math.random() > 0.5 ? 1 : -1);
-      const size = 0.04 + Math.random() * 0.1;
-      return { r, angle, y, speed, size, phase: Math.random() * Math.PI * 2 };
+      const base = i + innerRadius * 0.37 + outerRadius * 0.19;
+      const r = innerRadius + stableNoise(base + 1) * (outerRadius - innerRadius);
+      const angle = stableNoise(base + 2) * Math.PI * 2;
+      const y = (stableNoise(base + 3) - 0.5) * 1.5;
+      const direction = stableNoise(base + 4) > 0.5 ? 1 : -1;
+      const speed = (0.02 + stableNoise(base + 5) * 0.03) * direction;
+      const size = 0.04 + stableNoise(base + 6) * 0.1;
+      return { r, angle, y, speed, size };
     });
   }, [innerRadius, outerRadius, count]);
 
@@ -393,8 +400,6 @@ function PlanetMesh({ planet, onHover, onClick, speedMultiplier, isSelected, sel
   const [pulse, setPulse] = useState(false);
 
   const angleRef = useRef((planet.id * 2.399963) % (Math.PI * 2));
-  const speedMultiplierRef = useRef(speedMultiplier);
-  speedMultiplierRef.current = speedMultiplier;
 
   const radius = planet.size * 1.4 + 0.15;
 
@@ -405,13 +410,13 @@ function PlanetMesh({ planet, onHover, onClick, speedMultiplier, isSelected, sel
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    angleRef.current += delta * planet.orbitSpeed * speedMultiplierRef.current;
+    angleRef.current += delta * planet.orbitSpeed * speedMultiplier;
     groupRef.current.position.x = Math.cos(angleRef.current) * planet.orbitRadius;
     groupRef.current.position.z = Math.sin(angleRef.current) * planet.orbitRadius;
     // Write live position for camera tracking
     if (selectedPosRef) selectedPosRef.current = groupRef.current.position.clone();
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * (planet.type === "gaseous" ? 0.15 : 0.25) * speedMultiplierRef.current;
+      meshRef.current.rotation.y += delta * (planet.type === "gaseous" ? 0.15 : 0.25) * speedMultiplier;
     }
   });
 
@@ -633,7 +638,8 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [showLegend, setShowLegend] = useState(false);
 
-  function handlePlanetClick(planet: Planet, _pos: THREE.Vector3) {
+  function handlePlanetClick(planet: Planet, pos: THREE.Vector3) {
+    void pos;
     setSelectedPlanet((prev) => prev?.id === planet.id ? null : planet);
   }
 

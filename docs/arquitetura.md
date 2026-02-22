@@ -4,11 +4,11 @@
 
 | Camada | Tecnologia |
 |---|---|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Linguagem | TypeScript |
 | Estilo | Tailwind CSS v4 |
 | 3D | React Three Fiber + Drei + Three.js |
-| Export de card | html-to-image |
+| Export de card | adiado (fora da versão atual) |
 | API | GitHub REST API v3 |
 
 ## Estrutura de pastas
@@ -26,12 +26,15 @@ src/
     solar/
       SolarSystemView.tsx     # Canvas 3D principal
       PlanetTooltip.tsx       # Tooltip de hover
+      PlanetSidebar.tsx       # Painel lateral de detalhes
+    galaxy/
+      GalaxyView.tsx          # Visão geral de sistemas catalogados
+      MiniSolarSystem.tsx     # Renderização de mini-sistemas
     ui/
       SearchBar.tsx           # Campo de busca
-    share/
-      ShareCard.tsx           # (Fase 5) Geração de card PNG
   lib/
     githubClient.ts           # Fetch para GitHub API
+    galaxyStore.ts            # Persistência local dos sistemas catalogados
     planetMapper.ts           # Transformação dados → domínio visual
     languageColors.ts         # Mapa linguagem → cor hex
   types/
@@ -75,3 +78,4 @@ Usuário digita username
 - Commits estimados via `size` e `pushed_at` (GitHub REST não expõe contagem de commits por repo na listagem)
 - Máximo de 40 planetas exibidos (cap visual)
 - Sem autenticação / cache de sessão
+- Sem geração de share card/PNG nesta versão

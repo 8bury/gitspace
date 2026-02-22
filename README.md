@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitSpace
 
-## Getting Started
+GitSpace transforma um perfil público do GitHub em um sistema solar 3D interativo:
+- estrela central = perfil do usuário
+- planetas = repositórios
+- propriedades visuais baseadas em linguagem, atividade e stars
 
-First, run the development server:
+## Status
+
+- Versão: `v0.1.0`
+- Fase atual: QA/polimento do MVP
+- Share card: adiado (não incluído nesta versão)
+
+## Stack
+
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS v4
+- Three.js + React Three Fiber + Drei
+- GitHub REST API v3
+
+## Requisitos
+
+- Node.js 20+
+- npm 10+
+
+## Setup local
+
+1. Instale dependências:
+
+```bash
+npm install
+```
+
+2. Configure variáveis de ambiente:
+
+```bash
+# .env.local
+GITHUB_TOKEN=seu_token_github # opcional, mas recomendado
+
+# opcional para persistir galáxia em Cloudflare D1 (produção)
+CLOUDFLARE_ACCOUNT_ID=...
+CLOUDFLARE_D1_DATABASE_ID=...
+CLOUDFLARE_API_TOKEN=...
+```
+
+3. Rode em desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Abra:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```text
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Uso
 
-## Learn More
+1. Digite um username público do GitHub na busca.
+2. Explore o sistema na visão de galáxia.
+3. Entre no sistema solar do usuário.
+4. Interaja com planetas (hover, clique, sidebar, controle de câmera e velocidade).
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev
+npm run lint
+npx tsc --noEmit
+npm run build
+npm run start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API interna
 
-## Deploy on Vercel
+- `GET /api/github/[username]`: busca GitHub e retorna `SolarSystem`
+- `GET /api/galaxy`: retorna sistemas catalogados localmente
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Limitações conhecidas
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Contagem de commits é aproximada (proxy por `size` + `pushed_at`).
+- Sem autenticação de usuário final.
+- Sem share card/PNG nesta versão.
+- Se variáveis do D1 não estiverem configuradas, a persistência da galáxia cai para arquivo local (`data/galaxy.json`).
+
+## QA
+
+Checklist e resultado da validação em `docs/qa-checklist.md`.
