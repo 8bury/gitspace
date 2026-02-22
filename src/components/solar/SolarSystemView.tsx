@@ -133,44 +133,22 @@ function makeProceduralTexture(
 
 function StarMesh({ star }: { star: Star }) {
   const ref = useRef<THREE.Mesh>(null);
-  const glowRef = useRef<THREE.Mesh>(null);
   const radius = star.size;
 
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (ref.current) ref.current.rotation.y = t * 0.08;
-    if (glowRef.current) {
-      const pulse = 1 + Math.sin(t * 1.4) * 0.04;
-      glowRef.current.scale.setScalar(pulse);
-    }
+    if (ref.current) ref.current.rotation.y = clock.getElapsedTime() * 0.08;
   });
 
-  const color = new THREE.Color(star.color);
-
   return (
-    <group>
-      {/* Core */}
-      <mesh ref={ref} geometry={HI_SPHERE} scale={radius}>
-        <meshStandardMaterial
-          color={star.color}
-          emissive={star.color}
-          emissiveIntensity={1.2}
-          roughness={0.3}
-          metalness={0}
-        />
-      </mesh>
-
-      {/* Atmosphere glow */}
-      <mesh ref={glowRef} geometry={HI_SPHERE} scale={radius * 1.25}>
-        <meshBasicMaterial
-          color={color}
-          transparent
-          opacity={0.08}
-          side={THREE.BackSide}
-          depthWrite={false}
-        />
-      </mesh>
-    </group>
+    <mesh ref={ref} geometry={HI_SPHERE} scale={radius}>
+      <meshStandardMaterial
+        color={star.color}
+        emissive={star.color}
+        emissiveIntensity={1.2}
+        roughness={0.3}
+        metalness={0}
+      />
+    </mesh>
   );
 }
 
@@ -228,7 +206,6 @@ interface PlanetMeshProps {
 function PlanetMesh({ planet, onHover, onClick }: PlanetMeshProps) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
-  const atmosphereRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
   const phaseOffset = (planet.id * 2.399963) % (Math.PI * 2);
@@ -239,8 +216,6 @@ function PlanetMesh({ planet, onHover, onClick }: PlanetMeshProps) {
     [planet.id, planet.type, planet.color, planet.secondaryColor]
   );
 
-  const atmosphereColor = new THREE.Color(planet.color);
-
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
     const t = clock.getElapsedTime() * planet.orbitSpeed + phaseOffset;
@@ -249,10 +224,6 @@ function PlanetMesh({ planet, onHover, onClick }: PlanetMeshProps) {
 
     if (meshRef.current) {
       meshRef.current.rotation.y = clock.getElapsedTime() * (planet.type === "gaseous" ? 0.15 : 0.25);
-    }
-    if (atmosphereRef.current) {
-      const pulse = 1 + Math.sin(clock.getElapsedTime() * 0.8 + planet.id) * 0.02;
-      atmosphereRef.current.scale.setScalar(pulse);
     }
   });
 
@@ -299,17 +270,6 @@ function PlanetMesh({ planet, onHover, onClick }: PlanetMeshProps) {
 
         {/* Scale wrapper for hover */}
         <group scale={scale}>
-          {/* Atmosphere */}
-          <mesh ref={atmosphereRef} geometry={HI_SPHERE} scale={radius * 1.18}>
-            <meshBasicMaterial
-              color={atmosphereColor}
-              transparent
-              opacity={planet.type === "gaseous" ? 0.12 : planet.type === "icy" ? 0.06 : 0.08}
-              side={THREE.BackSide}
-              depthWrite={false}
-            />
-          </mesh>
-
           {/* Ring (high-star repos) */}
           {planet.hasRing && (
             <group rotation={[Math.PI / 2.2, 0, planet.axialTilt * 0.5]}>
