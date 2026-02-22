@@ -11,7 +11,7 @@ interface Props {
   entry: GalaxyEntry;
   position: GalaxyPosition;
   onSelect: (username: string) => void;
-  /** 0–1: followers / maxFollowers across the whole galaxy */
+  /** 0-1 follower scale already normalized in GalaxyView (outlier-safe). */
   sizeScale: number;
   isSelected: boolean;
   isNew?: boolean;
