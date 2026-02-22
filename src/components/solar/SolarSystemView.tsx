@@ -525,24 +525,89 @@ function Scene({ system, onHover, onClick, showOrbits, speedMultiplier, selected
 
 function RankingPanel({ planets, onSelect }: { planets: Planet[]; onSelect: (p: Planet) => void }) {
   const top3 = useMemo(() =>
-    [...planets].sort((a, b) => b.stars - a.stars).slice(0, 3),
+    [...planets].sort((a, b) => b.size - a.size).slice(0, 3),
     [planets]
   );
-  const medals = ["🥇", "🥈", "🥉"];
+  const ranks = ["01", "02", "03"];
 
   return (
-    <div className="absolute bottom-4 left-4 bg-black/70 backdrop-blur-sm border border-zinc-800 rounded-xl px-4 py-3 text-xs flex flex-col gap-2 min-w-[180px]">
-      <p className="text-zinc-500 uppercase tracking-widest text-[10px]">Top repos</p>
+    <div style={{
+      position: "absolute",
+      bottom: "16px",
+      left: "16px",
+      background: "rgba(2, 8, 14, 0.88)",
+      border: "1px solid rgba(0,229,255,0.2)",
+      backdropFilter: "blur(12px)",
+      padding: "12px 14px",
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+      minWidth: "200px",
+      clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+    }}>
+      <div style={{
+        position: "absolute", top: 0, left: 0,
+        width: 6, height: 6,
+        borderTop: "1px solid #00e5ff",
+        borderLeft: "1px solid #00e5ff",
+      }} />
+
+      <p style={{
+        fontFamily: "var(--font-mono)",
+        fontSize: "11px",
+        letterSpacing: "0.14em",
+        textTransform: "uppercase",
+        color: "rgba(0,229,255,0.55)",
+        marginBottom: "2px",
+      }}>TOP OBJECTS BY MASS</p>
+
       {top3.map((p, i) => (
         <button
           key={p.id}
           onClick={() => onSelect(p)}
-          className="flex items-center gap-2 hover:text-white text-zinc-300 transition-colors text-left"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            textAlign: "left",
+            color: "rgba(180,200,220,0.8)",
+            transition: "color 0.15s",
+            fontFamily: "var(--font-mono)",
+            fontSize: "13px",
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#e8edf2")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(180,200,220,0.8)")}
         >
-          <span>{medals[i]}</span>
-          <div className="w-2 h-2 rounded-full shrink-0" style={{ background: p.color }} />
-          <span className="truncate max-w-[120px]">{p.repoName}</span>
-          <span className="ml-auto text-zinc-500">⭐{p.stars}</span>
+          <span style={{ color: "rgba(0,229,255,0.4)", fontSize: "11px", letterSpacing: "0.08em", minWidth: "18px" }}>
+            {ranks[i]}
+          </span>
+          <div style={{
+            width: 7, height: 7,
+            background: p.color,
+            boxShadow: `0 0 4px ${p.color}`,
+            flexShrink: 0,
+          }} />
+          <span style={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: "130px",
+            fontFamily: "var(--font-display)",
+            fontWeight: 500,
+            fontSize: "14px",
+            letterSpacing: "0.02em",
+          }}>{p.repoName}</span>
+          <span style={{
+            marginLeft: "auto",
+            color: "rgba(0,229,255,0.5)",
+            fontSize: "12px",
+            letterSpacing: "0.04em",
+            flexShrink: 0,
+          }}>{p.stars}</span>
         </button>
       ))}
     </div>
@@ -582,34 +647,158 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       </Canvas>
 
       {/* Star info badge */}
-      <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm border border-zinc-800 rounded-xl px-4 py-3 text-sm max-w-xs">
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-3 h-3 rounded-full" style={{ background: system.star.color }} />
-          <span className="font-semibold">{system.star.name ?? system.star.username}</span>
+      <div style={{
+        position: "absolute",
+        top: "16px",
+        left: "16px",
+        background: "rgba(2, 8, 14, 0.88)",
+        border: "1px solid rgba(0,229,255,0.2)",
+        backdropFilter: "blur(12px)",
+        padding: "12px 14px",
+        maxWidth: "240px",
+        clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+      }}>
+        <div style={{
+          position: "absolute", top: 0, left: 0,
+          width: 6, height: 6,
+          borderTop: "1px solid #00e5ff",
+          borderLeft: "1px solid #00e5ff",
+        }} />
+
+        <div style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "11px",
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "rgba(0,229,255,0.55)",
+          marginBottom: "8px",
+        }}>STELLAR OBJECT</div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+          <div style={{
+            width: 8, height: 8,
+            background: system.star.color,
+            boxShadow: `0 0 8px ${system.star.color}`,
+            borderRadius: "50%",
+            flexShrink: 0,
+          }} />
+          <span style={{
+            fontFamily: "var(--font-display)",
+            fontWeight: 600,
+            fontSize: "15px",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            color: "#e8edf2",
+          }}>{system.star.name ?? system.star.username}</span>
         </div>
-        {system.star.dominantLanguage && (
-          <p className="text-zinc-400 text-xs">Primary: {system.star.dominantLanguage}</p>
-        )}
-        <p className="text-zinc-400 text-xs">{system.planets.length} planets · {system.star.followers.toLocaleString()} followers</p>
+
+        <div style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "13px",
+          color: "rgba(140,160,180,0.8)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "4px",
+        }}>
+          {system.star.dominantLanguage && (
+            <div style={{ display: "flex", gap: "8px" }}>
+              <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>LANG</span>
+              <span>{system.star.dominantLanguage}</span>
+            </div>
+          )}
+          <div style={{ display: "flex", gap: "8px" }}>
+            <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>BODIES</span>
+            <span>{system.planets.length}</span>
+          </div>
+          <div style={{ display: "flex", gap: "8px" }}>
+            <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>FOLLOWERS</span>
+            <span>{system.star.followers.toLocaleString()}</span>
+          </div>
+        </div>
       </div>
 
       {/* Controls panel */}
-      <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm border border-zinc-800 rounded-xl px-4 py-3 flex flex-col gap-3 min-w-[160px]">
+      <div style={{
+        position: "absolute",
+        top: "16px",
+        right: "16px",
+        background: "rgba(2, 8, 14, 0.88)",
+        border: "1px solid rgba(0,229,255,0.2)",
+        backdropFilter: "blur(12px)",
+        padding: "12px 14px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "10px",
+        minWidth: "170px",
+        clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+      }}>
+        <div style={{
+          position: "absolute", top: 0, left: 0,
+          width: 6, height: 6,
+          borderTop: "1px solid #00e5ff",
+          borderLeft: "1px solid #00e5ff",
+        }} />
+
+        <div style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "11px",
+          letterSpacing: "0.14em",
+          textTransform: "uppercase",
+          color: "rgba(0,229,255,0.55)",
+        }}>NAVIGATION</div>
+
         <button
           onClick={() => setShowOrbits((v) => !v)}
-          className="text-xs text-zinc-400 hover:text-white transition-colors text-left"
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            fontFamily: "var(--font-mono)",
+            fontSize: "12px",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: showOrbits ? "rgba(0,229,255,0.8)" : "rgba(140,160,180,0.5)",
+            textAlign: "left",
+            transition: "color 0.2s",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
         >
-          {showOrbits ? "⊙ Hide orbits" : "⊙ Show orbits"}
+          <span style={{
+            display: "inline-block",
+            width: 8, height: 8,
+            border: "1px solid currentColor",
+            borderRadius: "50%",
+            position: "relative",
+          }}>
+            {showOrbits && <span style={{
+              position: "absolute",
+              inset: 2,
+              background: "#00e5ff",
+              borderRadius: "50%",
+            }} />}
+          </span>
+          {showOrbits ? "ORBITS ON" : "ORBITS OFF"}
         </button>
-        <div className="flex flex-col gap-1">
-          <div className="flex justify-between text-xs text-zinc-400">
-            <span>Speed</span>
-            <span className="text-white font-medium">{speedMultiplier.toFixed(1)}×</span>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+          }}>
+            <span style={{ color: "rgba(0,229,255,0.5)" }}>WARP</span>
+            <span style={{ color: "#e8edf2", fontWeight: 600 }}>{speedMultiplier.toFixed(1)}x</span>
           </div>
           <input
             type="range" min={0.2} max={8} step={0.1} value={speedMultiplier}
             onChange={(e) => setSpeedMultiplier(parseFloat(e.target.value))}
-            className="w-full accent-indigo-500 cursor-pointer"
+            style={{ width: "100%", cursor: "pointer" }}
           />
         </div>
       </div>
@@ -622,27 +811,155 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
 
       {/* Selected planet panel */}
       {selectedPlanet && (
-        <div className="absolute bottom-4 right-4 bg-black/80 backdrop-blur-sm border border-zinc-800 rounded-xl p-4 text-sm max-w-sm w-full">
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full shrink-0" style={{ background: selectedPlanet.color }} />
-              <span className="font-semibold break-all">{selectedPlanet.repoName}</span>
+        <div style={{
+          position: "absolute",
+          bottom: "16px",
+          right: "16px",
+          background: "rgba(2, 8, 14, 0.92)",
+          border: "1px solid rgba(0,229,255,0.25)",
+          backdropFilter: "blur(14px)",
+          padding: "14px 16px",
+          maxWidth: "280px",
+          width: "100%",
+          clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
+        }}>
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            width: 8, height: 8,
+            borderTop: "1px solid #00e5ff",
+            borderLeft: "1px solid #00e5ff",
+          }} />
+
+          <div style={{
+            position: "absolute", bottom: 0, right: 0,
+            width: 8, height: 8,
+            borderBottom: "1px solid #00e5ff",
+            borderRight: "1px solid #00e5ff",
+          }} />
+
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "rgba(0,229,255,0.55)",
+            marginBottom: "10px",
+          }}>OBJECT LOCKED</div>
+
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "10px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{
+                width: 8, height: 8,
+                background: selectedPlanet.color,
+                boxShadow: `0 0 8px ${selectedPlanet.color}`,
+                flexShrink: 0,
+              }} />
+              <span style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 700,
+                fontSize: "15px",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+                color: "#e8edf2",
+                wordBreak: "break-all",
+              }}>{selectedPlanet.repoName}</span>
             </div>
-            <button onClick={() => setSelectedPlanet(null)} className="text-zinc-500 hover:text-white text-xs shrink-0">✕</button>
+            <button
+              onClick={() => setSelectedPlanet(null)}
+              style={{
+                background: "none",
+                border: "1px solid rgba(0,229,255,0.2)",
+                padding: "2px 6px",
+                cursor: "pointer",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                letterSpacing: "0.1em",
+                color: "rgba(140,160,180,0.6)",
+                flexShrink: 0,
+                transition: "all 0.2s",
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget.style.color = "#e8edf2");
+                (e.currentTarget.style.borderColor = "rgba(0,229,255,0.5)");
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget.style.color = "rgba(140,160,180,0.6)");
+                (e.currentTarget.style.borderColor = "rgba(0,229,255,0.2)");
+              }}
+            >ESC</button>
           </div>
+
           {selectedPlanet.description && (
-            <p className="text-zinc-400 text-xs mb-2">{selectedPlanet.description}</p>
+            <p style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "12px",
+              color: "rgba(140,160,180,0.7)",
+              marginBottom: "10px",
+              lineHeight: 1.5,
+              letterSpacing: "0.02em",
+            }}>{selectedPlanet.description}</p>
           )}
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-zinc-400 mb-3">
-            <span>⭐ {selectedPlanet.stars} stars</span>
-            <span>🍴 {selectedPlanet.forks} forks</span>
-            <span>🪐 {selectedPlanet.type}</span>
-            {selectedPlanet.language && <span>💻 {selectedPlanet.language}</span>}
-            {selectedPlanet.hasRing && <span>💫 has ring</span>}
-            {selectedPlanet.hasMoon && <span>🌙 has moon</span>}
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "5px 16px",
+            marginBottom: "12px",
+            fontFamily: "var(--font-mono)",
+            fontSize: "13px",
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "rgba(0,229,255,0.5)" }}>STARS</span>
+              <span style={{ color: "rgba(180,200,220,0.8)" }}>{selectedPlanet.stars}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "rgba(0,229,255,0.5)" }}>FORKS</span>
+              <span style={{ color: "rgba(180,200,220,0.8)" }}>{selectedPlanet.forks}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <span style={{ color: "rgba(0,229,255,0.5)" }}>CLASS</span>
+              <span style={{ color: "rgba(180,200,220,0.8)", textTransform: "uppercase" }}>{selectedPlanet.type}</span>
+            </div>
+            {selectedPlanet.language && (
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "rgba(0,229,255,0.5)" }}>LANG</span>
+                <span style={{ color: "rgba(180,200,220,0.8)" }}>{selectedPlanet.language}</span>
+              </div>
+            )}
+            {selectedPlanet.hasRing && (
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "rgba(0,229,255,0.5)" }}>RING</span>
+                <span style={{ color: "rgba(180,200,220,0.8)" }}>YES</span>
+              </div>
+            )}
+            {selectedPlanet.hasMoon && (
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "rgba(0,229,255,0.5)" }}>MOON</span>
+                <span style={{ color: "rgba(180,200,220,0.8)" }}>YES</span>
+              </div>
+            )}
           </div>
-          <a href={selectedPlanet.htmlUrl} target="_blank" rel="noopener noreferrer" className="inline-block text-xs text-indigo-400 hover:text-indigo-300">
-            View on GitHub →
+
+          <a
+            href={selectedPlanet.htmlUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--font-mono)",
+              fontSize: "12px",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              color: "#00e5ff",
+              textDecoration: "none",
+              borderBottom: "1px solid rgba(0,229,255,0.3)",
+              paddingBottom: "1px",
+              transition: "opacity 0.2s",
+            }}
+            onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.opacity = "0.7")}
+            onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.opacity = "1")}
+          >
+            VIEW ON GITHUB &gt;
           </a>
         </div>
       )}
