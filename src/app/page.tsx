@@ -143,6 +143,55 @@ export default function Home() {
           </h1>
         </div>
 
+        <a
+          href="https://github.com/8bury/gitspace"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Are you enjoying GitSpace? Consider leaving a star."
+          style={{
+            position: "absolute",
+            right: "16px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "10px",
+            letterSpacing: "0.06em",
+            color: "rgba(225,246,255,0.92)",
+            background: "linear-gradient(180deg, rgba(0,229,255,0.14), rgba(2,8,14,0.82))",
+            border: "1px solid rgba(0,229,255,0.35)",
+            padding: "7px 10px",
+            textDecoration: "none",
+            borderRadius: "4px",
+            transition: "all 0.18s",
+            backdropFilter: "blur(10px)",
+            boxShadow: "0 0 0 1px rgba(0,229,255,0.08) inset, 0 0 14px rgba(0,229,255,0.14)",
+            zIndex: 10,
+            maxWidth: "230px",
+            lineHeight: 1.25,
+            textAlign: "left",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.color = "#f0fdff";
+            (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(0,229,255,0.6)";
+            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 0 1px rgba(0,229,255,0.14) inset, 0 0 22px rgba(0,229,255,0.26)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLAnchorElement).style.color = "rgba(225,246,255,0.92)";
+            (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(0,229,255,0.35)";
+            (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 0 0 1px rgba(0,229,255,0.08) inset, 0 0 14px rgba(0,229,255,0.14)";
+          }}
+        >
+          <span style={{ color: "#00e5ff", fontSize: "12px", lineHeight: 1 }}>★</span>
+          <span>
+            Are you enjoying GitSpace?
+            <br />
+            Consider leaving a star.
+          </span>
+        </a>
+
         {/* Back button — only in solar mode */}
         {view.mode === "solar" && (
           <button
