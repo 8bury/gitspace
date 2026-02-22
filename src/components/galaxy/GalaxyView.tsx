@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Stars, OrbitControls } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
@@ -36,7 +36,7 @@ function PairBond({ a, b }: { a: GalaxyPosition; b: GalaxyPosition }) {
   return <primitive ref={lineRef} object={new THREE.Line(geo, mat)} />;
 }
 
-// ─── Camera focus ─────────────────────────────────────────────────────────────
+// ─── Camera focus + zoom ──────────────────────────────────────────────────────
 function CameraFocus({
   target,
   controlsRef,
@@ -44,13 +44,41 @@ function CameraFocus({
   target: [number, number, number] | null;
   controlsRef: React.RefObject<OrbitControlsImpl | null>;
 }) {
-  const dest = useMemo(() => new THREE.Vector3(), []);
+  const { camera } = useThree();
+  const orbitDest    = useRef(new THREE.Vector3());
+  const targetRadius = useRef<number | null>(null);
+  const prevKey      = useRef<string>("null");
+  const dir          = useMemo(() => new THREE.Vector3(), []);
+
   useFrame((_, delta) => {
     const controls = controlsRef.current;
     if (!controls) return;
-    if (target) dest.set(target[0], 0, target[2]);
-    else dest.set(0, 0, 0);
-    controls.target.lerp(dest, delta * 3);
+
+    // Detect target change — start one-shot zoom
+    const key = target ? `${target[0].toFixed(1)},${target[2].toFixed(1)}` : "null";
+    if (key !== prevKey.current) {
+      prevKey.current = key;
+      targetRadius.current = target ? 42 : 116;
+      if (target) orbitDest.current.set(target[0], 0, target[2]);
+      else        orbitDest.current.set(0, 0, 0);
+    }
+
+    // Lerp orbit pivot
+    controls.target.lerp(orbitDest.current, delta * 3);
+
+    // One-shot zoom: only shrink/grow the radius — angle is untouched
+    if (targetRadius.current !== null) {
+      const currentDist = camera.position.distanceTo(controls.target);
+      if (currentDist > 0.001) {
+        const newDist = THREE.MathUtils.lerp(currentDist, targetRadius.current, delta * 4);
+        dir.copy(camera.position).sub(controls.target).normalize().multiplyScalar(newDist);
+        camera.position.copy(controls.target).add(dir);
+      }
+      if (Math.abs(camera.position.distanceTo(controls.target) - targetRadius.current) < 0.5) {
+        targetRadius.current = null; // animation done — OrbitControls is fully free
+      }
+    }
+
     controls.update();
   });
   return null;
