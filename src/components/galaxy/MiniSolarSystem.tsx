@@ -11,7 +11,7 @@ interface Props {
   entry: GalaxyEntry;
   position: GalaxyPosition;
   onSelect: (username: string) => void;
-  /** 0-1 follower scale already normalized in GalaxyView (outlier-safe). */
+  /** 0-1 follower scale (linear, clamped at 200k followers). */
   sizeScale: number;
   isSelected: boolean;
   isNew?: boolean;
@@ -56,8 +56,8 @@ export default function MiniSolarSystem({ entry, position, onSelect, sizeScale, 
   const birthScale = useRef(isNew ? 0 : 1);
   const birthing = useRef(!!isNew);
 
-  // ── Size math (linear scale → ~13× between min and max) ──────────────────
-  const starRadius = 0.3 + sizeScale * 3.7;
+  // ── Size math (linear scale with max star radius = 6 at scale 1) ─────────
+  const starRadius = 0.3 + sizeScale * 5.7;
   const orbitStart   = starRadius + 0.5 + sizeScale * 0.5;
   const orbitSpacing = 0.8 + sizeScale * 1.2;
 

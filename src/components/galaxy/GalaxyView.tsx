@@ -38,54 +38,18 @@ function PairBond({ a, b }: { a: GalaxyPosition; b: GalaxyPosition }) {
 
 function computeFollowerSizeScales(entries: GalaxyEntry[]): number[] {
   if (entries.length === 0) return [];
-  if (entries.length === 1) return [1];
 
-  const sortedFollowers = entries
-    .map((entry) => Math.max(entry.followers, 0))
-    .sort((a, b) => a - b);
-
-  // Base range up to P90 stays stable; top range is anchored for 35k->200k contrast.
-  const p90Index = Math.floor((sortedFollowers.length - 1) * 0.9);
-  const followerCap = Math.max(sortedFollowers[p90Index], 1);
-  const minFollowers = sortedFollowers[0];
-
-  const minLog = Math.log10(minFollowers + 1);
-  const capLog = Math.log10(followerCap + 1);
-  const baseSpan = capLog - minLog;
-
+  const maxFollowersForScale = 200_000;
   const minScale = 0.06;
-  const baseExponent = 1.35;
-  const topStartScale = 0.46;
-
-  const highStartFollowers = 35_000;
-  const highEndFollowers = 200_000;
-  const highExponent = 1.1;
-
-  const highStartLog = Math.log10(highStartFollowers + 1);
-  const highEndLog = Math.log10(highEndFollowers + 1);
-  const highSpan = highEndLog - highStartLog;
-
-  if (baseSpan <= Number.EPSILON) {
-    return entries.map(() => 0.5);
-  }
 
   return entries.map((entry) => {
     const safeFollowers = Math.max(entry.followers, 0);
-    const baseNormalized = (Math.log10(safeFollowers + 1) - minLog) / baseSpan;
-    const baseScale = THREE.MathUtils.clamp(
-      minScale + Math.pow(baseNormalized, baseExponent) * (topStartScale - minScale),
+    const normalized = safeFollowers / maxFollowersForScale;
+    return THREE.MathUtils.clamp(
+      minScale + normalized * (1 - minScale),
       minScale,
-      topStartScale
+      1
     );
-
-    if (safeFollowers < highStartFollowers || highSpan <= Number.EPSILON) {
-      return baseScale;
-    }
-
-    const cappedHigh = Math.min(safeFollowers, highEndFollowers);
-    const highNormalized = (Math.log10(cappedHigh + 1) - highStartLog) / highSpan;
-    const highScale = topStartScale + Math.pow(highNormalized, highExponent) * (1 - topStartScale);
-    return THREE.MathUtils.clamp(highScale, topStartScale, 1);
   });
 }
 
