@@ -9,7 +9,7 @@ export const LANGUAGE_COLORS: Record<string, string> = {
   Go: "#00ADD8",
   Java: "#b07219",
   "C++": "#f34b7d",
-  C: "#555555",
+  C: "#ffffff",
   "C#": "#178600",
   Ruby: "#701516",
   PHP: "#4F5D95",

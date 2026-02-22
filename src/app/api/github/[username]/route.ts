@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchUser, fetchRepos, fetchLanguages } from "@/lib/githubClient";
 import { buildSolarSystem } from "@/lib/planetMapper";
+import { upsertEntry, extractGalaxyEntry } from "@/lib/galaxyStore";
 import { GitHubLanguages } from "@/types";
 
 export async function GET(
@@ -34,6 +35,12 @@ export async function GET(
     });
 
     const system = buildSolarSystem(user, repos, languagesMap);
+
+    // Fire-and-forget: persist to galaxy store (never blocks response)
+    upsertEntry(extractGalaxyEntry(system)).catch((err) =>
+      console.warn("[GalaxyStore] upsert failed:", err)
+    );
+
     return NextResponse.json(system);
   } catch (err) {
     const message = err instanceof Error ? err.message : "UNKNOWN_ERROR";

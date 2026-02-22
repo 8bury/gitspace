@@ -72,3 +72,17 @@ export interface SolarSystem {
   planets: Planet[];
   generatedAt: string;
 }
+
+export interface GalaxyEntry {
+  username: string;
+  name: string | null;
+  avatarUrl: string;
+  bio?: string | null;         // optional — not present in old stored entries
+  starColor: string;           // color of dominant language
+  dominantLanguage: string | null;
+  followers: number;           // determines size in galaxy
+  planetCount: number;         // number of mini orbits
+  brightnessScore: number;     // 0–1, avg activityScore of planets
+  topPlanetColors: string[];   // up to 3 colors of most active planets
+  savedAt: string;             // ISO — when saved
+}

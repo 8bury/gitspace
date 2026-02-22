@@ -98,13 +98,21 @@ function makeProceduralTexture(
 
 // ─── Star ─────────────────────────────────────────────────────────────────────
 
+/** Scales emissive intensity inversely to perceived luminance.
+ *  White needs less boost (bloom amplifies it a lot); dark colors need more. */
+function emissiveForColor(hex: string, base: number): number {
+  const c = new THREE.Color(hex);
+  const lum = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
+  return base * (1.35 - lum * 0.8);
+}
+
 function StarMesh({ star }: { star: Star }) {
   const ref = useRef<THREE.Mesh>(null);
   const radius = star.size * 2.2;
   useFrame(({ clock }) => { if (ref.current) ref.current.rotation.y = clock.getElapsedTime() * 0.08; });
   return (
     <mesh ref={ref} geometry={HI_SPHERE} scale={radius}>
-      <meshStandardMaterial color={star.color} emissive={star.color} emissiveIntensity={1.2} roughness={0.3} metalness={0} />
+      <meshStandardMaterial color={star.color} emissive={star.color} emissiveIntensity={emissiveForColor(star.color, 1.2)} roughness={0.3} metalness={0} />
     </mesh>
   );
 }
