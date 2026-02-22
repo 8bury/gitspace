@@ -669,7 +669,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   }, [system.planets]);
 
   return (
-    <div className="relative w-full h-[calc(100vh-220px)] min-h-[500px]">
+    <div className="relative w-full h-[calc(100vh-110px)] min-h-[500px]">
       <Canvas
         camera={{ position: [0, 22, 45], fov: 50 }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.8 }}

@@ -1,17 +1,19 @@
 "use client";
 
-import { Suspense, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Stars, OrbitControls } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import { GalaxyEntry } from "@/types";
 import { GalaxyPosition, computeGalaxyLayout } from "@/lib/galaxyLayout";
 import MiniSolarSystem from "./MiniSolarSystem";
 
 interface Props {
   entries: GalaxyEntry[];
-  onSystemClick: (username: string) => void;
+  onSystemExplore: (username: string) => void;
+  focusedUsername?: string | null;
 }
 
 // ─── Easter egg ───────────────────────────────────────────────────────────────
@@ -32,6 +34,26 @@ function PairBond({ a, b }: { a: GalaxyPosition; b: GalaxyPosition }) {
       0.08 + Math.sin(clock.getElapsedTime() * 1.4) * 0.06;
   });
   return <primitive ref={lineRef} object={new THREE.Line(geo, mat)} />;
+}
+
+// ─── Camera focus ─────────────────────────────────────────────────────────────
+function CameraFocus({
+  target,
+  controlsRef,
+}: {
+  target: [number, number, number] | null;
+  controlsRef: React.RefObject<OrbitControlsImpl | null>;
+}) {
+  const dest = useMemo(() => new THREE.Vector3(), []);
+  useFrame((_, delta) => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    if (target) dest.set(target[0], 0, target[2]);
+    else dest.set(0, 0, 0);
+    controls.target.lerp(dest, delta * 3);
+    controls.update();
+  });
+  return null;
 }
 // ──────────────────────────────────────────────────────────────────────────────
 
@@ -150,8 +172,11 @@ function SystemPanel({
 }
 // ──────────────────────────────────────────────────────────────────────────────
 
-export default function GalaxyView({ entries, onSystemClick }: Props) {
+export default function GalaxyView({ entries, onSystemExplore, focusedUsername }: Props) {
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
+  const [newlyAdded, setNewlyAdded] = useState<string | null>(null);
+  const controlsRef = useRef<OrbitControlsImpl>(null);
+
   const selectedEntry = entries.find((e) => e.username === selectedUsername) ?? null;
 
   const rawPositions = useMemo(() => computeGalaxyLayout(entries.length, 80), [entries.length]);
@@ -166,6 +191,24 @@ export default function GalaxyView({ entries, onSystemClick }: Props) {
   }, [rawPositions, entries]);
 
   const pairActive = entries.some((e) => e.username === _A) && entries.some((e) => e.username === _B);
+
+  // Auto-select and track newly added system
+  useEffect(() => {
+    if (focusedUsername) {
+      setSelectedUsername(focusedUsername);
+      setNewlyAdded(focusedUsername);
+      const t = setTimeout(() => setNewlyAdded(null), 600);
+      return () => clearTimeout(t);
+    }
+  }, [focusedUsername]);
+
+  // Selected system's world position for camera focus
+  const selectedIdx = selectedUsername
+    ? entries.findIndex((e) => e.username === selectedUsername)
+    : -1;
+  const selectedPos = selectedIdx >= 0
+    ? [positions[selectedIdx].x, positions[selectedIdx].y, positions[selectedIdx].z] as [number, number, number]
+    : null;
 
   function handleSelect(username: string) {
     setSelectedUsername((prev) => prev === username ? null : username);
@@ -209,12 +252,22 @@ export default function GalaxyView({ entries, onSystemClick }: Props) {
               onSelect={handleSelect}
               sizeScale={entry.followers / maxFollowers}
               isSelected={selectedUsername === entry.username}
+              isNew={entry.username === newlyAdded}
             />
           ))}
           {pairActive && <PairBond a={_PA} b={_PB} />}
         </Suspense>
 
-        <OrbitControls minDistance={30} maxDistance={300} enablePan autoRotate={entries.length > 0 && !selectedUsername} autoRotateSpeed={0.15} />
+        <OrbitControls
+          ref={controlsRef}
+          minDistance={30}
+          maxDistance={300}
+          enablePan
+          autoRotate={entries.length > 0 && !selectedUsername}
+          autoRotateSpeed={0.15}
+        />
+
+        <CameraFocus target={selectedPos} controlsRef={controlsRef} />
 
         <EffectComposer>
           <Bloom luminanceThreshold={0.4} luminanceSmoothing={0.9} intensity={1.5} mipmapBlur />
@@ -225,7 +278,7 @@ export default function GalaxyView({ entries, onSystemClick }: Props) {
       {selectedEntry && (
         <SystemPanel
           entry={selectedEntry}
-          onEnter={() => { onSystemClick(selectedEntry.username); setSelectedUsername(null); }}
+          onEnter={() => { onSystemExplore(selectedEntry.username); setSelectedUsername(null); }}
           onClose={() => setSelectedUsername(null)}
         />
       )}

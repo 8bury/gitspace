@@ -14,6 +14,7 @@ interface Props {
   /** 0–1: followers / maxFollowers across the whole galaxy */
   sizeScale: number;
   isSelected: boolean;
+  isNew?: boolean;
 }
 
 const MAX_ORBITS = 5;
@@ -47,9 +48,13 @@ function SystemReticle({ radius, color }: { radius: number; color: string }) {
   );
 }
 
-export default function MiniSolarSystem({ entry, position, onSelect, sizeScale, isSelected }: Props) {
+export default function MiniSolarSystem({ entry, position, onSelect, sizeScale, isSelected, isNew }: Props) {
   const groupRef = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
+
+  // Scale-in animation for newly appeared systems
+  const birthScale = useRef(isNew ? 0 : 1);
+  const birthing = useRef(!!isNew);
 
   // ── Size math (linear scale → ~13× between min and max) ──────────────────
   const starRadius = 0.3 + sizeScale * 3.7;
@@ -91,6 +96,14 @@ export default function MiniSolarSystem({ entry, position, onSelect, sizeScale, 
   const planetMeshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
   useFrame((_, delta) => {
+    // Scale-in animation
+    if (birthing.current) {
+      birthScale.current = Math.min(1, birthScale.current + delta * 2.5);
+      if (groupRef.current) groupRef.current.scale.setScalar(birthScale.current);
+      if (birthScale.current >= 1) birthing.current = false;
+    }
+
+    // Planet orbits
     for (let i = 0; i < orbitCount; i++) {
       const r = orbitRadii[i];
       planetAngles.current[i] += delta * (0.6 / Math.pow(r, 1.5));

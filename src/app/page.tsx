@@ -17,20 +17,21 @@ export default function Home() {
   const [view, setView] = useState<ViewState>({ mode: "galaxy" });
   const [galaxyEntries, setGalaxyEntries] = useState<GalaxyEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [focusedUsername, setFocusedUsername] = useState<string | null>(null);
+  const [systemCache, setSystemCache] = useState<Map<string, SolarSystem>>(new Map());
 
-  // Load galaxy entries on mount
   useEffect(() => {
     fetch("/api/galaxy")
       .then((r) => r.json())
       .then((data) => {
         if (data.entries) setGalaxyEntries(data.entries as GalaxyEntry[]);
       })
-      .catch(() => {/* galaxy fetch failure is non-critical */});
+      .catch(() => {/* non-critical */});
   }, []);
 
-  async function loadSolar(username: string) {
+  async function loadSolar(username: string, goToSolar: boolean) {
     setError(null);
-    setView({ mode: "loading-solar", username });
+    if (goToSolar) setView({ mode: "loading-solar", username });
 
     try {
       const res = await fetch(`/api/github/${encodeURIComponent(username)}`);
@@ -43,9 +44,11 @@ export default function Home() {
       }
 
       const system = data as SolarSystem;
-      setView({ mode: "solar", system });
 
-      // Optimistic update: add/replace entry in galaxy list
+      // Cache the full system
+      setSystemCache((prev) => new Map(prev).set(username, system));
+
+      // Build and upsert galaxy entry
       const newEntry: GalaxyEntry = {
         username: system.star.username,
         name: system.star.name,
@@ -70,15 +73,35 @@ export default function Home() {
         const filtered = prev.filter((e) => e.username !== newEntry.username);
         return [newEntry, ...filtered].sort((a, b) => b.followers - a.followers);
       });
+
+      if (goToSolar) {
+        setView({ mode: "solar", system });
+      } else {
+        setView({ mode: "galaxy" });
+        setFocusedUsername(username);
+      }
     } catch {
       setError("Failed to reach the server. Check your connection.");
       setView({ mode: "galaxy" });
     }
   }
 
-  const handleSearch = (username: string) => loadSolar(username);
-  const handleGalaxyClick = (username: string) => loadSolar(username);
-  const handleBack = () => { setError(null); setView({ mode: "galaxy" }); };
+  function handleExplore(username: string) {
+    const cached = systemCache.get(username);
+    const entry = galaxyEntries.find((e) => e.username === username);
+    const fresh =
+      entry && Date.now() - new Date(entry.savedAt).getTime() < 12 * 3600 * 1000;
+
+    if (cached && fresh) {
+      setView({ mode: "solar", system: cached });
+      setFocusedUsername(null);
+    } else {
+      loadSolar(username, true);
+    }
+  }
+
+  const handleSearch = (username: string) => loadSolar(username, false);
+  const handleBack = () => { setError(null); setFocusedUsername(null); setView({ mode: "galaxy" }); };
 
   const isLoading = view.mode === "loading-solar";
 
@@ -87,14 +110,14 @@ export default function Home() {
       className="min-h-screen bg-black text-white flex flex-col"
       style={{ fontFamily: "var(--font-display)" }}
     >
-      <header className="flex flex-col items-center justify-center pt-14 pb-6 gap-3 relative">
+      <header className="flex flex-col items-center justify-center pt-3 pb-3 gap-2 relative">
         {/* Top decorative line */}
         <div
           className="absolute top-0 left-0 right-0 h-px"
           style={{ background: "linear-gradient(90deg, transparent, rgba(0,229,255,0.4), transparent)" }}
         />
 
-        <div className="flex items-center gap-3 mb-1">
+        <div className="flex items-center gap-3">
           {/* Logo mark */}
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="opacity-90">
             <circle cx="14" cy="14" r="4" fill="#00e5ff" opacity="0.9" />
@@ -150,7 +173,7 @@ export default function Home() {
           </button>
         )}
 
-        <div className="mt-2">
+        <div>
           <SearchBar onSearch={handleSearch} loading={isLoading} />
         </div>
 
@@ -178,38 +201,13 @@ export default function Home() {
       <section className="flex-1 w-full">
         {view.mode === "solar" && <SolarSystemView system={view.system} />}
 
-        {view.mode === "loading-solar" && (
-          <div className="flex flex-col items-center justify-center h-64 gap-3">
-            <div style={{ position: "relative", width: 40, height: 40 }}>
-              <svg
-                width="40"
-                height="40"
-                viewBox="0 0 40 40"
-                fill="none"
-                style={{ animation: "spin 2s linear infinite" }}
-              >
-                <circle cx="20" cy="20" r="18" stroke="rgba(0,229,255,0.15)" strokeWidth="1" />
-                <path d="M 20 2 A 18 18 0 0 1 38 20" stroke="#00e5ff" strokeWidth="1.5" strokeLinecap="square" />
-              </svg>
-              <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-            </div>
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                letterSpacing: "0.18em",
-                color: "#00e5ff",
-                textTransform: "uppercase",
-              }}
-            >
-              SCANNING REPOSITORIES...
-            </span>
-          </div>
-        )}
-
-        {view.mode === "galaxy" && (
-          <div style={{ width: "100%", height: "calc(100vh - 160px)" }}>
-            <GalaxyView entries={galaxyEntries} onSystemClick={handleGalaxyClick} />
+        {view.mode !== "solar" && (
+          <div style={{ width: "100%", height: "calc(100vh - 110px)" }}>
+            <GalaxyView
+              entries={galaxyEntries}
+              onSystemExplore={handleExplore}
+              focusedUsername={focusedUsername}
+            />
           </div>
         )}
       </section>
