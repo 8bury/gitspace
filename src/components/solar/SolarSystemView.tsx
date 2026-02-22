@@ -8,6 +8,8 @@ import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { SolarSystem, Planet, Star } from "@/types";
 import PlanetTooltip from "./PlanetTooltip";
+import PlanetSidebar from "./PlanetSidebar";
+import LegendPanel from "./LegendPanel";
 
 extend({ Line_: THREE.Line });
 
@@ -455,7 +457,7 @@ function PlanetMesh({ planet, onHover, onClick, speedMultiplier, isSelected, sel
 
       {pulse && <EnergyPulse radius={radius} color={planet.color} onDone={() => setPulse(false)} />}
 
-      <Html center position={[0, -(radius + 0.5), 0]} style={{ pointerEvents: "none" }}>
+      <Html center position={[0, -(radius + 0.5), 0]} style={{ pointerEvents: "none" }} zIndexRange={[0, 0]}>
         <span style={{
           color: isSelected ? planet.color : "rgba(255,255,255,0.55)",
           fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.1em",
@@ -629,6 +631,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [selectedPlanet, setSelectedPlanet] = useState<Planet | null>(null);
   const [showOrbits, setShowOrbits] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
+  const [showLegend, setShowLegend] = useState(false);
 
   function handlePlanetClick(planet: Planet, _pos: THREE.Vector3) {
     setSelectedPlanet((prev) => prev?.id === planet.id ? null : planet);
@@ -637,6 +640,33 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   function handleRankingSelect(planet: Planet) {
     setSelectedPlanet(planet);
   }
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const planets = system.planets;
+      if (e.key === "Escape") {
+        setSelectedPlanet(null);
+      } else if (e.key === "ArrowRight" || e.key === "Tab") {
+        e.preventDefault();
+        if (!planets.length) return;
+        setSelectedPlanet((prev) => {
+          if (!prev) return planets[0];
+          const i = planets.findIndex(p => p.id === prev.id);
+          return planets[(i + 1) % planets.length];
+        });
+      } else if (e.key === "ArrowLeft") {
+        if (!planets.length) return;
+        setSelectedPlanet((prev) => {
+          if (!prev) return planets[planets.length - 1];
+          const i = planets.findIndex(p => p.id === prev.id);
+          return planets[(i - 1 + planets.length) % planets.length];
+        });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [system.planets]);
 
   return (
     <div className="relative w-full h-[calc(100vh-220px)] min-h-[500px]">
@@ -809,6 +839,38 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
             style={{ width: "100%", cursor: "pointer" }}
           />
         </div>
+
+        <button
+          onClick={() => setShowLegend((v) => !v)}
+          style={{
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            fontFamily: "var(--font-mono)",
+            fontSize: "12px",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            color: showLegend ? "rgba(0,229,255,0.8)" : "rgba(140,160,180,0.5)",
+            textAlign: "left",
+            transition: "color 0.2s",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+          onMouseEnter={(e) => { if (!showLegend) e.currentTarget.style.color = "rgba(180,200,220,0.8)"; }}
+          onMouseLeave={(e) => { if (!showLegend) e.currentTarget.style.color = "rgba(140,160,180,0.5)"; }}
+        >
+          <span style={{
+            display: "inline-block",
+            width: 8, height: 8,
+            border: "1px solid currentColor",
+            position: "relative",
+          }}>
+            {showLegend && <span style={{ position: "absolute", inset: 2, background: "#00e5ff" }} />}
+          </span>
+          LEGEND
+        </button>
       </div>
 
       {/* Ranking */}
@@ -817,160 +879,11 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       {/* Hover tooltip */}
       {hoveredPlanet && !selectedPlanet && <PlanetTooltip planet={hoveredPlanet} />}
 
-      {/* Selected planet panel */}
-      {selectedPlanet && (
-        <div style={{
-          position: "absolute",
-          bottom: "16px",
-          right: "16px",
-          background: "rgba(2, 8, 14, 0.92)",
-          border: "1px solid rgba(0,229,255,0.25)",
-          backdropFilter: "blur(14px)",
-          padding: "14px 16px",
-          maxWidth: "280px",
-          width: "100%",
-          clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
-        }}>
-          <div style={{
-            position: "absolute", top: 0, left: 0,
-            width: 8, height: 8,
-            borderTop: "1px solid #00e5ff",
-            borderLeft: "1px solid #00e5ff",
-          }} />
+      {/* Sidebar — selected planet detail */}
+      <PlanetSidebar planet={selectedPlanet} onClose={() => setSelectedPlanet(null)} />
 
-          <div style={{
-            position: "absolute", bottom: 0, right: 0,
-            width: 8, height: 8,
-            borderBottom: "1px solid #00e5ff",
-            borderRight: "1px solid #00e5ff",
-          }} />
-
-          <div style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "11px",
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
-            color: "rgba(0,229,255,0.55)",
-            marginBottom: "10px",
-          }}>OBJECT LOCKED</div>
-
-          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "10px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <div style={{
-                width: 8, height: 8,
-                background: selectedPlanet.color,
-                boxShadow: `0 0 8px ${selectedPlanet.color}`,
-                flexShrink: 0,
-              }} />
-              <span style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 700,
-                fontSize: "15px",
-                letterSpacing: "0.04em",
-                textTransform: "uppercase",
-                color: "#e8edf2",
-                wordBreak: "break-all",
-              }}>{selectedPlanet.repoName}</span>
-            </div>
-            <button
-              onClick={() => setSelectedPlanet(null)}
-              style={{
-                background: "none",
-                border: "1px solid rgba(0,229,255,0.2)",
-                padding: "2px 6px",
-                cursor: "pointer",
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                letterSpacing: "0.1em",
-                color: "rgba(140,160,180,0.6)",
-                flexShrink: 0,
-                transition: "all 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget.style.color = "#e8edf2");
-                (e.currentTarget.style.borderColor = "rgba(0,229,255,0.5)");
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget.style.color = "rgba(140,160,180,0.6)");
-                (e.currentTarget.style.borderColor = "rgba(0,229,255,0.2)");
-              }}
-            >ESC</button>
-          </div>
-
-          {selectedPlanet.description && (
-            <p style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "12px",
-              color: "rgba(140,160,180,0.7)",
-              marginBottom: "10px",
-              lineHeight: 1.5,
-              letterSpacing: "0.02em",
-            }}>{selectedPlanet.description}</p>
-          )}
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "5px 16px",
-            marginBottom: "12px",
-            fontFamily: "var(--font-mono)",
-            fontSize: "13px",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "rgba(0,229,255,0.5)" }}>STARS</span>
-              <span style={{ color: "rgba(180,200,220,0.8)" }}>{selectedPlanet.stars}</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "rgba(0,229,255,0.5)" }}>FORKS</span>
-              <span style={{ color: "rgba(180,200,220,0.8)" }}>{selectedPlanet.forks}</span>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "rgba(0,229,255,0.5)" }}>CLASS</span>
-              <span style={{ color: "rgba(180,200,220,0.8)", textTransform: "uppercase" }}>{selectedPlanet.type}</span>
-            </div>
-            {selectedPlanet.language && (
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "rgba(0,229,255,0.5)" }}>LANG</span>
-                <span style={{ color: "rgba(180,200,220,0.8)" }}>{selectedPlanet.language}</span>
-              </div>
-            )}
-            {selectedPlanet.hasRing && (
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "rgba(0,229,255,0.5)" }}>RING</span>
-                <span style={{ color: "rgba(180,200,220,0.8)" }}>YES</span>
-              </div>
-            )}
-            {selectedPlanet.hasMoon && (
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "rgba(0,229,255,0.5)" }}>MOON</span>
-                <span style={{ color: "rgba(180,200,220,0.8)" }}>YES</span>
-              </div>
-            )}
-          </div>
-
-          <a
-            href={selectedPlanet.htmlUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-block",
-              fontFamily: "var(--font-mono)",
-              fontSize: "12px",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              color: "#00e5ff",
-              textDecoration: "none",
-              borderBottom: "1px solid rgba(0,229,255,0.3)",
-              paddingBottom: "1px",
-              transition: "opacity 0.2s",
-            }}
-            onMouseEnter={(e) => ((e.target as HTMLAnchorElement).style.opacity = "0.7")}
-            onMouseLeave={(e) => ((e.target as HTMLAnchorElement).style.opacity = "1")}
-          >
-            VIEW ON GITHUB &gt;
-          </a>
-        </div>
-      )}
+      {/* Legend panel */}
+      <LegendPanel visible={showLegend} onClose={() => setShowLegend(false)} />
     </div>
   );
 }
