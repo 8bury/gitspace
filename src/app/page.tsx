@@ -118,6 +118,25 @@ export default function Home() {
         />
 
         <div className="flex items-center gap-3">
+          {view.mode === "solar" && (
+            <button
+              onClick={handleBack}
+              className="md:hidden inline-flex items-center justify-center"
+              aria-label="Back to galaxy"
+              style={{
+                width: 28,
+                height: 28,
+                color: "#00e5ff",
+                border: "1px solid rgba(0,229,255,0.35)",
+                background: "rgba(2,8,14,0.72)",
+                borderRadius: 4,
+                fontSize: 12,
+                lineHeight: 1,
+              }}
+            >
+              ←
+            </button>
+          )}
           {/* Logo mark */}
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" className="opacity-90">
             <circle cx="14" cy="14" r="4" fill="#00e5ff" opacity="0.9" />
@@ -211,7 +230,7 @@ export default function Home() {
         {view.mode === "solar" && (
           <button
             onClick={handleBack}
-            className="lg:absolute lg:top-1/2 lg:left-4 lg:-translate-y-1/2"
+            className="hidden md:inline-flex lg:absolute lg:top-1/2 lg:left-4 lg:-translate-y-1/2"
             style={{
               fontFamily: "var(--font-mono)",
               fontSize: "10px",

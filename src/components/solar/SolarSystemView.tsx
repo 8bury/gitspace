@@ -654,6 +654,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [showOrbits, setShowOrbits] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
+  const [starExpanded, setStarExpanded] = useState(false);
   const [controlsExpanded, setControlsExpanded] = useState(false);
   const [showRankingMobile, setShowRankingMobile] = useState(false);
 
@@ -666,6 +667,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
 
   useEffect(() => {
     if (!isMobile) {
+      setStarExpanded(false);
       setControlsExpanded(false);
       setShowRankingMobile(false);
     }
@@ -746,13 +748,36 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
         }} />
 
         <div style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "11px",
-          letterSpacing: "0.14em",
-          textTransform: "uppercase",
-          color: "rgba(0,229,255,0.55)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
           marginBottom: "8px",
-        }}>STELLAR OBJECT</div>
+        }}>
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            letterSpacing: "0.14em",
+            textTransform: "uppercase",
+            color: "rgba(0,229,255,0.55)",
+          }}>STELLAR OBJECT</div>
+          {isMobile && (
+            <button
+              onClick={() => setStarExpanded((v) => !v)}
+              style={{
+                background: "none",
+                border: "1px solid rgba(0,229,255,0.35)",
+                color: "#00e5ff",
+                padding: "3px 8px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "10px",
+                letterSpacing: "0.08em",
+                minHeight: 28,
+              }}
+            >
+              {starExpanded ? "HIDE" : "SHOW"}
+            </button>
+          )}
+        </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "8px" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -793,29 +818,31 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
           </div>
         </div>
 
-        <div style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "13px",
-          color: "rgba(140,160,180,0.8)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "4px",
-        }}>
-          {system.star.dominantLanguage && (
+        {(!isMobile || starExpanded) && (
+          <div style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "13px",
+            color: "rgba(140,160,180,0.8)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "4px",
+          }}>
+            {system.star.dominantLanguage && (
+              <div style={{ display: "flex", gap: "8px" }}>
+                <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>LANG</span>
+                <span>{system.star.dominantLanguage}</span>
+              </div>
+            )}
             <div style={{ display: "flex", gap: "8px" }}>
-              <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>LANG</span>
-              <span>{system.star.dominantLanguage}</span>
+              <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>BODIES</span>
+              <span>{system.planets.length}</span>
             </div>
-          )}
-          <div style={{ display: "flex", gap: "8px" }}>
-            <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>BODIES</span>
-            <span>{system.planets.length}</span>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>FOLLOWERS</span>
+              <span>{system.star.followers.toLocaleString()}</span>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <span style={{ color: "rgba(0,229,255,0.5)", minWidth: "50px" }}>FOLLOWERS</span>
-            <span>{system.star.followers.toLocaleString()}</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Controls panel */}
