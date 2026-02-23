@@ -133,6 +133,8 @@ function SystemPanel({
         zIndex: 30,
         pointerEvents: "auto",
         touchAction: "manipulation",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       {/* Corner accents */}
@@ -174,7 +176,18 @@ function SystemPanel({
 
       {/* Bio */}
       {entry.bio && (
-        <p style={{ fontFamily: "monospace", fontSize: 11, color: "rgba(140,160,180,0.75)", lineHeight: 1.5, marginBottom: 12, letterSpacing: "0.02em" }}>
+        <p style={{
+          fontFamily: "monospace",
+          fontSize: 11,
+          color: "rgba(140,160,180,0.75)",
+          lineHeight: 1.5,
+          marginBottom: 12,
+          letterSpacing: "0.02em",
+          display: "-webkit-box",
+          WebkitLineClamp: isMobile ? 2 : "unset",
+          WebkitBoxOrient: "vertical",
+          overflow: isMobile ? "hidden" : "visible",
+        }}>
           {entry.bio}
         </p>
       )}
@@ -201,7 +214,15 @@ function SystemPanel({
       </div>
 
       {/* Action buttons */}
-      <div style={{ display: "flex", gap: 8 }}>
+      <div style={{
+        display: "flex",
+        gap: 8,
+        position: isMobile ? "sticky" : "static",
+        bottom: isMobile ? 0 : undefined,
+        background: isMobile ? "rgba(2,8,14,0.96)" : "transparent",
+        paddingTop: isMobile ? 8 : 0,
+        marginTop: "auto",
+      }}>
         <button
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
