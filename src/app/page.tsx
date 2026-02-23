@@ -107,10 +107,10 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen bg-black text-white flex flex-col"
+      className="h-screen overflow-hidden bg-black text-white flex flex-col"
       style={{ fontFamily: "var(--font-display)" }}
     >
-      <header className="relative flex flex-col items-center justify-center gap-2 px-3 pt-3 pb-3 lg:min-h-[92px]">
+      <header className={`relative flex flex-col items-center justify-center px-3 lg:min-h-[92px] ${view.mode === "solar" ? "gap-1 pt-2 pb-2" : "gap-2 pt-3 pb-3"}`}>
         {/* Top decorative line */}
         <div
           className="absolute top-0 left-0 right-0 h-px"
@@ -148,7 +148,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Are you enjoying GitSpace? Consider leaving a star."
-          className="inline-flex max-w-[230px] items-center gap-2 text-left lg:absolute lg:top-1/2 lg:right-4 lg:-translate-y-1/2"
+          className={`${view.mode === "solar" ? "hidden sm:inline-flex" : "inline-flex"} max-w-[230px] items-center gap-2 text-left lg:absolute lg:top-1/2 lg:right-4 lg:-translate-y-1/2`}
           style={{
             fontFamily: "var(--font-mono)",
             fontSize: "10px",
@@ -242,7 +242,7 @@ export default function Home() {
         />
       </header>
 
-      <section className="flex-1 w-full">
+      <section className="flex-1 w-full overflow-hidden">
         {view.mode === "solar" && <SolarSystemView system={view.system} />}
 
         {view.mode !== "solar" && (

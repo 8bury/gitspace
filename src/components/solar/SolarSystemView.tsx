@@ -552,7 +552,7 @@ function Scene({ system, onHover, onClick, showOrbits, speedMultiplier, selected
 
 // ─── Ranking panel ────────────────────────────────────────────────────────────
 
-function RankingPanel({ planets, onSelect }: { planets: Planet[]; onSelect: (p: Planet) => void }) {
+function RankingPanel({ planets, onSelect, isMobile = false }: { planets: Planet[]; onSelect: (p: Planet) => void; isMobile?: boolean }) {
   const top3 = useMemo(() =>
     [...planets].sort((a, b) => b.size - a.size).slice(0, 3),
     [planets]
@@ -562,17 +562,20 @@ function RankingPanel({ planets, onSelect }: { planets: Planet[]; onSelect: (p: 
   return (
     <div style={{
       position: "absolute",
-      bottom: "16px",
+      bottom: isMobile ? "56px" : "16px",
       left: "16px",
+      right: isMobile ? "16px" : "auto",
       background: "rgba(2, 8, 14, 0.88)",
       border: "1px solid rgba(0,229,255,0.2)",
       backdropFilter: "blur(12px)",
-      padding: "12px 14px",
+      padding: isMobile ? "10px 12px" : "12px 14px",
       display: "flex",
       flexDirection: "column",
       gap: "8px",
-      minWidth: "200px",
+      minWidth: isMobile ? "auto" : "200px",
+      maxWidth: isMobile ? "unset" : "260px",
       clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+      zIndex: 25,
     }}>
       <div style={{
         position: "absolute", top: 0, left: 0,
@@ -651,6 +654,8 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [showOrbits, setShowOrbits] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
+  const [controlsExpanded, setControlsExpanded] = useState(false);
+  const [showRankingMobile, setShowRankingMobile] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -658,6 +663,13 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    if (!isMobile) {
+      setControlsExpanded(false);
+      setShowRankingMobile(false);
+    }
+  }, [isMobile]);
 
   function handlePlanetClick(planet: Planet, pos: THREE.Vector3) {
     void pos;
@@ -815,7 +827,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
         background: "rgba(2, 8, 14, 0.88)",
         border: "1px solid rgba(0,229,255,0.2)",
         backdropFilter: "blur(12px)",
-        padding: isMobile ? "10px 12px" : "12px 14px",
+        padding: isMobile ? "8px 10px" : "12px 14px",
         display: "flex",
         flexDirection: "column",
         gap: "10px",
@@ -842,69 +854,116 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
             textTransform: "uppercase",
             color: "rgba(0,229,255,0.55)",
           }}>NAVIGATION</div>
-          <LegendPanel />
-        </div>
-
-        <button
-          onClick={() => setShowOrbits((v) => !v)}
-          style={{
-            background: "none",
-            border: "none",
-            padding: isMobile ? "8px 0" : 0,
-            minHeight: isMobile ? 38 : undefined,
-            cursor: "pointer",
-            fontFamily: "var(--font-mono)",
-            fontSize: "12px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-            color: showOrbits ? "rgba(0,229,255,0.8)" : "rgba(140,160,180,0.5)",
-            textAlign: "left",
-            transition: "color 0.2s",
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-          }}
-        >
-          <span style={{
-            display: "inline-block",
-            width: 8, height: 8,
-            border: "1px solid currentColor",
-            borderRadius: "50%",
-            position: "relative",
-          }}>
-            {showOrbits && <span style={{
-              position: "absolute",
-              inset: 2,
-              background: "#00e5ff",
-              borderRadius: "50%",
-            }} />}
-          </span>
-          {showOrbits ? "ORBITS ON" : "ORBITS OFF"}
-        </button>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <div style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontFamily: "var(--font-mono)",
-            fontSize: "11px",
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}>
-            <span style={{ color: "rgba(0,229,255,0.5)" }}>WARP</span>
-            <span style={{ color: "#e8edf2", fontWeight: 600 }}>{speedMultiplier.toFixed(1)}x</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <LegendPanel />
+            {isMobile && (
+              <button
+                onClick={() => setControlsExpanded((v) => !v)}
+                style={{
+                  background: "none",
+                  border: "1px solid rgba(0,229,255,0.35)",
+                  color: "#00e5ff",
+                  padding: "4px 8px",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "10px",
+                  letterSpacing: "0.08em",
+                  minHeight: 30,
+                }}
+              >
+                {controlsExpanded ? "HIDE" : "SHOW"}
+              </button>
+            )}
           </div>
-          <input
-            type="range" min={0.2} max={8} step={0.1} value={speedMultiplier}
-            onChange={(e) => setSpeedMultiplier(parseFloat(e.target.value))}
-            style={{ width: "100%", cursor: "pointer", height: isMobile ? 24 : undefined }}
-          />
         </div>
+
+        {(!isMobile || controlsExpanded) && (
+          <>
+            <button
+              onClick={() => setShowOrbits((v) => !v)}
+              style={{
+                background: "none",
+                border: "none",
+                padding: isMobile ? "8px 0" : 0,
+                minHeight: isMobile ? 38 : undefined,
+                cursor: "pointer",
+                fontFamily: "var(--font-mono)",
+                fontSize: "12px",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                color: showOrbits ? "rgba(0,229,255,0.8)" : "rgba(140,160,180,0.5)",
+                textAlign: "left",
+                transition: "color 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              <span style={{
+                display: "inline-block",
+                width: 8, height: 8,
+                border: "1px solid currentColor",
+                borderRadius: "50%",
+                position: "relative",
+              }}>
+                {showOrbits && <span style={{
+                  position: "absolute",
+                  inset: 2,
+                  background: "#00e5ff",
+                  borderRadius: "50%",
+                }} />}
+              </span>
+              {showOrbits ? "ORBITS ON" : "ORBITS OFF"}
+            </button>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+              <div style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontFamily: "var(--font-mono)",
+                fontSize: "11px",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}>
+                <span style={{ color: "rgba(0,229,255,0.5)" }}>WARP</span>
+                <span style={{ color: "#e8edf2", fontWeight: 600 }}>{speedMultiplier.toFixed(1)}x</span>
+              </div>
+              <input
+                type="range" min={0.2} max={8} step={0.1} value={speedMultiplier}
+                onChange={(e) => setSpeedMultiplier(parseFloat(e.target.value))}
+                style={{ width: "100%", cursor: "pointer", height: isMobile ? 24 : undefined }}
+              />
+            </div>
+          </>
+        )}
 
       </div>
 
       {/* Ranking */}
-      {(!isMobile || !selectedPlanet) && <RankingPanel planets={system.planets} onSelect={handleRankingSelect} />}
+      {!isMobile && <RankingPanel planets={system.planets} onSelect={handleRankingSelect} />}
+      {isMobile && !selectedPlanet && (
+        <>
+          <button
+            onClick={() => setShowRankingMobile((v) => !v)}
+            style={{
+              position: "absolute",
+              left: 10,
+              bottom: 10,
+              zIndex: 30,
+              background: "rgba(2, 8, 14, 0.88)",
+              border: "1px solid rgba(0,229,255,0.35)",
+              color: "#00e5ff",
+              fontFamily: "var(--font-mono)",
+              fontSize: "11px",
+              letterSpacing: "0.08em",
+              minHeight: 36,
+              padding: "8px 10px",
+            }}
+          >
+            {showRankingMobile ? "CLOSE TOP 3" : "TOP 3"}
+          </button>
+          {showRankingMobile && <RankingPanel planets={system.planets} onSelect={handleRankingSelect} isMobile />}
+        </>
+      )}
 
       {/* Hover tooltip */}
       {!isMobile && hoveredPlanet && !selectedPlanet && <PlanetTooltip planet={hoveredPlanet} />}
