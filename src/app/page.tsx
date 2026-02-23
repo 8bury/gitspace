@@ -269,7 +269,7 @@ export default function Home() {
         {view.mode === "solar" && <SolarSystemView system={view.system} />}
 
         {view.mode !== "solar" && (
-          <div style={{ width: "100%", height: "calc(100vh - 110px)" }}>
+          <div style={{ width: "100%", height: "100%" }}>
             <GalaxyView
               entries={galaxyEntries}
               onSystemExplore={handleExplore}

@@ -119,7 +119,7 @@ function SystemPanel({
       onPointerDown={(e) => e.stopPropagation()}
       style={{
         position: "absolute",
-        bottom: isMobile ? 8 : 20,
+        bottom: isMobile ? "calc(64px + env(safe-area-inset-bottom, 0px))" : 20,
         left: isMobile ? 8 : "auto",
         right: isMobile ? 8 : 20,
         width: isMobile ? "auto" : 280,
@@ -388,7 +388,7 @@ export default function GalaxyView({ entries, onSystemExplore, focusedUsername }
             position: "absolute",
             left: 10,
             right: 10,
-            bottom: 10,
+            bottom: "calc(10px + env(safe-area-inset-bottom, 0px))",
             zIndex: 60,
             background: `${selectedEntry.starColor}22`,
             border: `1px solid ${selectedEntry.starColor}88`,
