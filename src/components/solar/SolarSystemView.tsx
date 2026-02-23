@@ -525,7 +525,7 @@ function Scene({ system, onHover, onClick, showOrbits, speedMultiplier, selected
             speedMultiplier={speedMultiplier}
             isSelected={selectedPlanetId === planet.id}
             selectedPosRef={selectedPlanetId === planet.id ? selectedPosRef : null}
-            showLabel={!isMobile || selectedPlanetId === planet.id}
+            showLabel={true}
           />
         </group>
       ))}
