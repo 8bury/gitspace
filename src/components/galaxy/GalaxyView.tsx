@@ -199,14 +199,18 @@ function SystemPanel({
             </span>
           </div>
         )}
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "rgba(0,229,255,0.5)" }}>FOLLOWERS</span>
-          <span style={{ color: "rgba(180,200,220,0.85)" }}>{entry.followers.toLocaleString()}</span>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span style={{ color: "rgba(0,229,255,0.5)" }}>OBJECTS</span>
-          <span style={{ color: "rgba(180,200,220,0.85)" }}>{entry.planetCount}</span>
-        </div>
+        {!isMobile && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "rgba(0,229,255,0.5)" }}>FOLLOWERS</span>
+            <span style={{ color: "rgba(180,200,220,0.85)" }}>{entry.followers.toLocaleString()}</span>
+          </div>
+        )}
+        {!isMobile && (
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ color: "rgba(0,229,255,0.5)" }}>OBJECTS</span>
+            <span style={{ color: "rgba(180,200,220,0.85)" }}>{entry.planetCount}</span>
+          </div>
+        )}
       </div>
 
       {/* Action buttons */}
