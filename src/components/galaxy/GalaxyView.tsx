@@ -175,7 +175,7 @@ function SystemPanel({
       </div>
 
       {/* Bio */}
-      {entry.bio && (
+      {!isMobile && entry.bio && (
         <p style={{
           fontFamily: "monospace",
           fontSize: 11,
@@ -183,10 +183,6 @@ function SystemPanel({
           lineHeight: 1.5,
           marginBottom: 12,
           letterSpacing: "0.02em",
-          display: "-webkit-box",
-          WebkitLineClamp: isMobile ? 2 : "unset",
-          WebkitBoxOrient: "vertical",
-          overflow: isMobile ? "hidden" : "visible",
         }}>
           {entry.bio}
         </p>
