@@ -141,6 +141,29 @@ export default function Home() {
               SPACE
             </span>
           </h1>
+
+          <a
+            href="https://github.com/8bury/gitspace"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Leave a star on GitSpace"
+            className="md:hidden inline-flex items-center justify-center"
+            style={{
+              width: 28,
+              height: 28,
+              marginLeft: 4,
+              color: "#00e5ff",
+              border: "1px solid rgba(0,229,255,0.35)",
+              background: "rgba(2,8,14,0.72)",
+              borderRadius: 4,
+              textDecoration: "none",
+              boxShadow: "0 0 10px rgba(0,229,255,0.18)",
+              fontSize: 14,
+              lineHeight: 1,
+            }}
+          >
+            ★
+          </a>
         </div>
 
         <a
@@ -148,7 +171,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Are you enjoying GitSpace? Consider leaving a star."
-          className={`${view.mode === "solar" ? "hidden sm:inline-flex" : "inline-flex"} max-w-[230px] items-center gap-2 text-left lg:absolute lg:top-1/2 lg:right-4 lg:-translate-y-1/2`}
+          className={`hidden md:inline-flex ${view.mode === "solar" ? "lg:inline-flex" : ""} max-w-[230px] items-center gap-2 text-left lg:absolute lg:top-1/2 lg:right-4 lg:-translate-y-1/2`}
           style={{
             fontFamily: "var(--font-mono)",
             fontSize: "10px",

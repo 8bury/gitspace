@@ -210,43 +210,41 @@ function SystemPanel({
       </div>
 
       {/* Action buttons */}
-      <div style={{
-        display: "flex",
-        gap: 8,
-        position: isMobile ? "sticky" : "static",
-        bottom: isMobile ? 0 : undefined,
-        background: isMobile ? "rgba(2,8,14,0.96)" : "transparent",
-        paddingTop: isMobile ? 8 : 0,
-        marginTop: "auto",
-      }}>
-        <button
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onEnter();
-          }}
-          onTouchEnd={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            onEnter();
-          }}
-          style={{ flex: 1, background: `${entry.starColor}18`, border: `1px solid ${entry.starColor}66`, padding: "10px 0", minHeight: 40, cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: entry.starColor, transition: "all 0.15s" }}
-          onMouseEnter={(e) => { (e.currentTarget.style.background = `${entry.starColor}30`); }}
-          onMouseLeave={(e) => { (e.currentTarget.style.background = `${entry.starColor}18`); }}
-        >
-          EXPLORE SYSTEM
-        </button>
-        <a
-          href={`https://github.com/${entry.username}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(140,160,180,0.7)", textDecoration: "none", transition: "all 0.15s", whiteSpace: "nowrap" }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#e8edf2"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.3)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(140,160,180,0.7)"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)"; }}
-        >
-          GITHUB ↗
-        </a>
-      </div>
+      {!isMobile && (
+        <div style={{
+          display: "flex",
+          gap: 8,
+          marginTop: "auto",
+        }}>
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEnter();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onEnter();
+            }}
+            style={{ flex: 1, background: `${entry.starColor}18`, border: `1px solid ${entry.starColor}66`, padding: "10px 0", minHeight: 40, cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: entry.starColor, transition: "all 0.15s" }}
+            onMouseEnter={(e) => { (e.currentTarget.style.background = `${entry.starColor}30`); }}
+            onMouseLeave={(e) => { (e.currentTarget.style.background = `${entry.starColor}18`); }}
+          >
+            EXPLORE SYSTEM
+          </button>
+          <a
+            href={`https://github.com/${entry.username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 12px", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(140,160,180,0.7)", textDecoration: "none", transition: "all 0.15s", whiteSpace: "nowrap" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#e8edf2"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.3)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(140,160,180,0.7)"; (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.12)"; }}
+          >
+            GITHUB ↗
+          </a>
+        </div>
+      )}
     </div>
   );
 }
@@ -376,6 +374,30 @@ export default function GalaxyView({ entries, onSystemExplore, focusedUsername }
           onClose={() => setSelectedUsername(null)}
           isMobile={isMobile}
         />
+      )}
+
+      {/* Mobile primary action */}
+      {isMobile && selectedEntry && (
+        <button
+          onClick={() => { onSystemExplore(selectedEntry.username); setSelectedUsername(null); }}
+          style={{
+            position: "absolute",
+            left: 10,
+            right: 10,
+            bottom: 10,
+            zIndex: 60,
+            background: `${selectedEntry.starColor}22`,
+            border: `1px solid ${selectedEntry.starColor}88`,
+            color: selectedEntry.starColor,
+            minHeight: 44,
+            fontFamily: "monospace",
+            fontSize: 12,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+          }}
+        >
+          EXPLORE SYSTEM
+        </button>
       )}
     </div>
   );
