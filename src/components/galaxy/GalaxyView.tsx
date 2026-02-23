@@ -107,24 +107,29 @@ function SystemPanel({
   entry,
   onEnter,
   onClose,
+  isMobile,
 }: {
   entry: GalaxyEntry;
   onEnter: () => void;
   onClose: () => void;
+  isMobile: boolean;
 }) {
   return (
     <div
       style={{
         position: "absolute",
-        bottom: 20,
-        right: 20,
-        width: 280,
+        bottom: isMobile ? 8 : 20,
+        left: isMobile ? 8 : "auto",
+        right: isMobile ? 8 : 20,
+        width: isMobile ? "auto" : 280,
+        maxHeight: isMobile ? "52vh" : "none",
+        overflowY: isMobile ? "auto" : "visible",
         background: "rgba(2,8,14,0.92)",
         border: `1px solid ${entry.starColor}44`,
         backdropFilter: "blur(14px)",
-        padding: "16px",
+        padding: isMobile ? "12px" : "16px",
         clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
-        zIndex: 20,
+        zIndex: 30,
       }}
     >
       {/* Corner accents */}
@@ -196,7 +201,7 @@ function SystemPanel({
       <div style={{ display: "flex", gap: 8 }}>
         <button
           onClick={onEnter}
-          style={{ flex: 1, background: `${entry.starColor}18`, border: `1px solid ${entry.starColor}66`, padding: "8px 0", cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: entry.starColor, transition: "all 0.15s" }}
+          style={{ flex: 1, background: `${entry.starColor}18`, border: `1px solid ${entry.starColor}66`, padding: "10px 0", minHeight: 40, cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: entry.starColor, transition: "all 0.15s" }}
           onMouseEnter={(e) => { (e.currentTarget.style.background = `${entry.starColor}30`); }}
           onMouseLeave={(e) => { (e.currentTarget.style.background = `${entry.starColor}18`); }}
         >
@@ -221,6 +226,7 @@ function SystemPanel({
 export default function GalaxyView({ entries, onSystemExplore, focusedUsername }: Props) {
   const [selectedUsername, setSelectedUsername] = useState<string | null>(null);
   const [newlyAdded, setNewlyAdded] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const controlsRef = useRef<OrbitControlsImpl>(null);
 
   const selectedEntry = entries.find((e) => e.username === selectedUsername) ?? null;
@@ -237,6 +243,13 @@ export default function GalaxyView({ entries, onSystemExplore, focusedUsername }
   }, [rawPositions, entries]);
 
   const pairActive = entries.some((e) => e.username === _A) && entries.some((e) => e.username === _B);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   // Auto-select and track newly added system
   useEffect(() => {
@@ -332,6 +345,7 @@ export default function GalaxyView({ entries, onSystemExplore, focusedUsername }
           entry={selectedEntry}
           onEnter={() => { onSystemExplore(selectedEntry.username); setSelectedUsername(null); }}
           onClose={() => setSelectedUsername(null)}
+          isMobile={isMobile}
         />
       )}
     </div>
