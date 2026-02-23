@@ -116,6 +116,7 @@ function SystemPanel({
 }) {
   return (
     <div
+      onPointerDown={(e) => e.stopPropagation()}
       style={{
         position: "absolute",
         bottom: isMobile ? 8 : 20,
@@ -130,6 +131,8 @@ function SystemPanel({
         padding: isMobile ? "12px" : "16px",
         clipPath: "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
         zIndex: 30,
+        pointerEvents: "auto",
+        touchAction: "manipulation",
       }}
     >
       {/* Corner accents */}
@@ -200,7 +203,16 @@ function SystemPanel({
       {/* Action buttons */}
       <div style={{ display: "flex", gap: 8 }}>
         <button
-          onClick={onEnter}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEnter();
+          }}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onEnter();
+          }}
           style={{ flex: 1, background: `${entry.starColor}18`, border: `1px solid ${entry.starColor}66`, padding: "10px 0", minHeight: 40, cursor: "pointer", fontFamily: "monospace", fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase", color: entry.starColor, transition: "all 0.15s" }}
           onMouseEnter={(e) => { (e.currentTarget.style.background = `${entry.starColor}30`); }}
           onMouseLeave={(e) => { (e.currentTarget.style.background = `${entry.starColor}18`); }}
