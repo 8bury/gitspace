@@ -391,9 +391,10 @@ interface PlanetMeshProps {
   speedMultiplier: number;
   isSelected: boolean;
   selectedPosRef: React.RefObject<THREE.Vector3 | null> | null;
+  showLabel: boolean;
 }
 
-function PlanetMesh({ planet, onHover, onClick, speedMultiplier, isSelected, selectedPosRef }: PlanetMeshProps) {
+function PlanetMesh({ planet, onHover, onClick, speedMultiplier, isSelected, selectedPosRef, showLabel }: PlanetMeshProps) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
@@ -462,16 +463,18 @@ function PlanetMesh({ planet, onHover, onClick, speedMultiplier, isSelected, sel
 
       {pulse && <EnergyPulse radius={radius} color={planet.color} onDone={() => setPulse(false)} />}
 
-      <Html center position={[0, -(radius + 0.5), 0]} style={{ pointerEvents: "none" }} zIndexRange={[0, 0]}>
-        <span style={{
-          color: isSelected ? planet.color : "rgba(255,255,255,0.55)",
-          fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.1em",
-          textTransform: "uppercase", whiteSpace: "nowrap",
-          textShadow: "0 0 6px rgba(0,0,0,0.9)", fontWeight: isSelected ? 700 : 400,
-        }}>
-          {planet.repoName}
-        </span>
-      </Html>
+      {showLabel && (
+        <Html center position={[0, -(radius + 0.5), 0]} style={{ pointerEvents: "none" }} zIndexRange={[0, 0]}>
+          <span style={{
+            color: isSelected ? planet.color : "rgba(255,255,255,0.55)",
+            fontSize: "10px", fontFamily: "monospace", letterSpacing: "0.1em",
+            textTransform: "uppercase", whiteSpace: "nowrap",
+            textShadow: "0 0 6px rgba(0,0,0,0.9)", fontWeight: isSelected ? 700 : 400,
+          }}>
+            {planet.repoName}
+          </span>
+        </Html>
+      )}
 
       {isSelected && <Reticle radius={radius} color={planet.color} />}
     </group>
@@ -487,9 +490,10 @@ interface SceneProps {
   showOrbits: boolean;
   speedMultiplier: number;
   selectedPlanetId: number | null;
+  isMobile: boolean;
 }
 
-function Scene({ system, onHover, onClick, showOrbits, speedMultiplier, selectedPlanetId }: SceneProps) {
+function Scene({ system, onHover, onClick, showOrbits, speedMultiplier, selectedPlanetId, isMobile }: SceneProps) {
   const maxOrbit = system.planets.length > 0
     ? Math.max(...system.planets.map(p => p.orbitRadius))
     : 20;
@@ -521,13 +525,23 @@ function Scene({ system, onHover, onClick, showOrbits, speedMultiplier, selected
             speedMultiplier={speedMultiplier}
             isSelected={selectedPlanetId === planet.id}
             selectedPosRef={selectedPlanetId === planet.id ? selectedPosRef : null}
+            showLabel={!isMobile || selectedPlanetId === planet.id}
           />
         </group>
       ))}
 
       <CameraController planetPosition={selectedPosRef} controlsRef={controlsRef} active={selectedPlanetId !== null} />
 
-      <OrbitControls ref={controlsRef} enablePan={false} minDistance={3} maxDistance={100} />
+      <OrbitControls
+        ref={controlsRef}
+        enablePan={!isMobile}
+        minDistance={3}
+        maxDistance={100}
+        enableDamping
+        dampingFactor={0.08}
+        rotateSpeed={isMobile ? 0.55 : 1}
+        zoomSpeed={isMobile ? 0.8 : 1}
+      />
 
       <EffectComposer>
         <Bloom intensity={1.2} luminanceThreshold={0.3} luminanceSmoothing={0.9} mipmapBlur />
@@ -694,6 +708,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
           showOrbits={showOrbits}
           speedMultiplier={speedMultiplier}
           selectedPlanetId={selectedPlanet?.id ?? null}
+          isMobile={isMobile}
         />
       </Canvas>
 
@@ -835,7 +850,8 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
           style={{
             background: "none",
             border: "none",
-            padding: 0,
+            padding: isMobile ? "8px 0" : 0,
+            minHeight: isMobile ? 38 : undefined,
             cursor: "pointer",
             fontFamily: "var(--font-mono)",
             fontSize: "12px",
@@ -881,7 +897,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
           <input
             type="range" min={0.2} max={8} step={0.1} value={speedMultiplier}
             onChange={(e) => setSpeedMultiplier(parseFloat(e.target.value))}
-            style={{ width: "100%", cursor: "pointer" }}
+            style={{ width: "100%", cursor: "pointer", height: isMobile ? 24 : undefined }}
           />
         </div>
 
@@ -891,7 +907,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       {(!isMobile || !selectedPlanet) && <RankingPanel planets={system.planets} onSelect={handleRankingSelect} />}
 
       {/* Hover tooltip */}
-      {hoveredPlanet && !selectedPlanet && <PlanetTooltip planet={hoveredPlanet} />}
+      {!isMobile && hoveredPlanet && !selectedPlanet && <PlanetTooltip planet={hoveredPlanet} />}
 
       {/* Sidebar — selected planet detail */}
       <PlanetSidebar

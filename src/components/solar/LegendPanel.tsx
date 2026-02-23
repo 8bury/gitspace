@@ -133,8 +133,8 @@ export default function LegendPanel() {
           });
         }}
         style={{
-          width: 16,
-          height: 16,
+          width: 22,
+          height: 22,
           borderRadius: "50%",
           border: "1px solid rgba(0,229,255,0.4)",
           background: "rgba(0,229,255,0.08)",
