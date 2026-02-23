@@ -7,6 +7,7 @@ import { Planet, RepoCommitActivity, RepoCommitPoint } from "@/types";
 interface Props {
   planet: Planet | null;
   onClose: () => void;
+  isMobile?: boolean;
 }
 
 interface RepoIdentity {
@@ -216,7 +217,7 @@ function CommitChart({ activity }: { activity: RepoCommitActivity }) {
   );
 }
 
-export default function PlanetSidebar({ planet, onClose }: Props) {
+export default function PlanetSidebar({ planet, onClose, isMobile = false }: Props) {
   const [commitCache, setCommitCache] = useState<Record<string, RepoCommitActivity>>({});
   const [commitErrors, setCommitErrors] = useState<Record<string, string>>({});
 
@@ -287,20 +288,25 @@ export default function PlanetSidebar({ planet, onClose }: Props) {
   return createPortal(
     <div style={{
       position: "fixed",
-      top: 0,
+      top: isMobile ? "auto" : 0,
       right: 0,
+      left: isMobile ? 0 : "auto",
       bottom: 0,
-      width: "300px",
+      width: isMobile ? "100%" : "300px",
+      maxHeight: isMobile ? "70vh" : "100vh",
       background: "rgba(2, 8, 14, 0.96)",
-      borderLeft: "1px solid rgba(0,229,255,0.2)",
+      borderLeft: isMobile ? "none" : "1px solid rgba(0,229,255,0.2)",
+      borderTop: isMobile ? "1px solid rgba(0,229,255,0.2)" : "none",
       backdropFilter: "blur(18px)",
-      padding: "20px 18px",
+      padding: isMobile ? "14px 14px 16px" : "20px 18px",
       display: "flex",
       flexDirection: "column",
-      transform: planet ? "translateX(0)" : "translateX(100%)",
+      transform: planet ? "translate(0, 0)" : isMobile ? "translateY(100%)" : "translateX(100%)",
       transition: "transform 0.25s ease",
       zIndex: 9999,
       overflowY: "auto",
+      borderTopLeftRadius: isMobile ? "12px" : 0,
+      borderTopRightRadius: isMobile ? "12px" : 0,
     }}>
       {/* Decorative corners */}
       <div style={{

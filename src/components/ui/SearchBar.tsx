@@ -18,7 +18,10 @@ export default function SearchBar({ onSearch, loading }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", gap: "8px", width: "100%", maxWidth: "420px" }}>
+    <form
+      onSubmit={handleSubmit}
+      className="flex w-full max-w-[420px] flex-col gap-2 sm:flex-row"
+    >
       <div style={{ position: "relative", flex: 1 }}>
         {/* Corner decorations */}
         <span style={{
@@ -79,6 +82,7 @@ export default function SearchBar({ onSearch, loading }: Props) {
       <button
         type="submit"
         disabled={loading || !value.trim()}
+        className="w-full sm:w-auto"
         style={{
           background: loading || !value.trim() ? "transparent" : "rgba(0,229,255,0.1)",
           border: "1px solid rgba(0,229,255,0.4)",

@@ -110,7 +110,7 @@ export default function Home() {
       className="min-h-screen bg-black text-white flex flex-col"
       style={{ fontFamily: "var(--font-display)" }}
     >
-      <header className="flex flex-col items-center justify-center pt-3 pb-3 gap-2 relative">
+      <header className="relative flex flex-col items-center justify-center gap-2 px-3 pt-3 pb-3 lg:min-h-[92px]">
         {/* Top decorative line */}
         <div
           className="absolute top-0 left-0 right-0 h-px"
@@ -127,9 +127,9 @@ export default function Home() {
           </svg>
 
           <h1
+            className="text-[1.7rem] sm:text-[2rem] lg:text-[2.2rem]"
             style={{
               fontFamily: "var(--font-display)",
-              fontSize: "2.2rem",
               fontWeight: 700,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
@@ -148,11 +148,8 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Are you enjoying GitSpace? Consider leaving a star."
+          className="inline-flex max-w-[230px] items-center gap-2 text-left lg:absolute lg:top-1/2 lg:right-4 lg:-translate-y-1/2"
           style={{
-            position: "absolute",
-            right: "16px",
-            top: "50%",
-            transform: "translateY(-50%)",
             fontFamily: "var(--font-mono)",
             fontSize: "10px",
             letterSpacing: "0.06em",
@@ -166,12 +163,7 @@ export default function Home() {
             backdropFilter: "blur(10px)",
             boxShadow: "0 0 0 1px rgba(0,229,255,0.08) inset, 0 0 14px rgba(0,229,255,0.14)",
             zIndex: 10,
-            maxWidth: "230px",
             lineHeight: 1.25,
-            textAlign: "left",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
           }}
           onMouseEnter={(e) => {
             (e.currentTarget as HTMLAnchorElement).style.color = "#f0fdff";
@@ -196,11 +188,8 @@ export default function Home() {
         {view.mode === "solar" && (
           <button
             onClick={handleBack}
+            className="lg:absolute lg:top-1/2 lg:left-4 lg:-translate-y-1/2"
             style={{
-              position: "absolute",
-              left: "16px",
-              top: "50%",
-              transform: "translateY(-50%)",
               fontFamily: "var(--font-mono)",
               fontSize: "10px",
               letterSpacing: "0.18em",
@@ -228,7 +217,7 @@ export default function Home() {
           </button>
         )}
 
-        <div>
+        <div className="w-full flex justify-center">
           <SearchBar onSearch={handleSearch} loading={isLoading} />
         </div>
 

@@ -636,6 +636,14 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [selectedPlanet, setSelectedPlanet] = useState<Planet | null>(null);
   const [showOrbits, setShowOrbits] = useState(true);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   function handlePlanetClick(planet: Planet, pos: THREE.Vector3) {
     void pos;
@@ -674,7 +682,7 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   }, [system.planets]);
 
   return (
-    <div className="relative w-full h-[calc(100vh-110px)] min-h-[500px]">
+    <div className="relative w-full h-[calc(100vh-120px)] min-h-[420px] overflow-hidden md:h-[calc(100vh-110px)] md:min-h-[500px]">
       <Canvas
         camera={{ position: [0, 22, 45], fov: 50 }}
         gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.8 }}
@@ -692,14 +700,16 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       {/* Star info badge */}
       <div style={{
         position: "absolute",
-        top: "16px",
-        left: "16px",
+        top: isMobile ? "10px" : "16px",
+        left: isMobile ? "10px" : "16px",
+        right: isMobile ? "10px" : "auto",
         background: "rgba(2, 8, 14, 0.88)",
         border: "1px solid rgba(0,229,255,0.2)",
         backdropFilter: "blur(12px)",
-        padding: "12px 14px",
-        maxWidth: "240px",
+        padding: isMobile ? "10px 12px" : "12px 14px",
+        maxWidth: isMobile ? "calc(100vw - 20px)" : "240px",
         clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+        zIndex: 20,
       }}>
         <div style={{
           position: "absolute", top: 0, left: 0,
@@ -784,17 +794,19 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       {/* Controls panel */}
       <div style={{
         position: "absolute",
-        top: "16px",
-        right: "16px",
+        top: isMobile ? "126px" : "16px",
+        right: isMobile ? "10px" : "16px",
+        left: isMobile ? "10px" : "auto",
         background: "rgba(2, 8, 14, 0.88)",
         border: "1px solid rgba(0,229,255,0.2)",
         backdropFilter: "blur(12px)",
-        padding: "12px 14px",
+        padding: isMobile ? "10px 12px" : "12px 14px",
         display: "flex",
         flexDirection: "column",
         gap: "10px",
-        minWidth: "170px",
+        minWidth: isMobile ? "auto" : "170px",
         clipPath: "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+        zIndex: 20,
       }}>
         <div style={{
           position: "absolute", top: 0, left: 0,
@@ -876,13 +888,17 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
       </div>
 
       {/* Ranking */}
-      <RankingPanel planets={system.planets} onSelect={handleRankingSelect} />
+      {(!isMobile || !selectedPlanet) && <RankingPanel planets={system.planets} onSelect={handleRankingSelect} />}
 
       {/* Hover tooltip */}
       {hoveredPlanet && !selectedPlanet && <PlanetTooltip planet={hoveredPlanet} />}
 
       {/* Sidebar — selected planet detail */}
-      <PlanetSidebar planet={selectedPlanet} onClose={() => setSelectedPlanet(null)} />
+      <PlanetSidebar
+        planet={selectedPlanet}
+        onClose={() => setSelectedPlanet(null)}
+        isMobile={isMobile}
+      />
 
     </div>
   );
