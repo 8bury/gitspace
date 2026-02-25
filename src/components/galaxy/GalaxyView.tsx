@@ -64,20 +64,25 @@ function CameraFocus({
   const { camera } = useThree();
   const orbitDest    = useRef(new THREE.Vector3());
   const targetRadius = useRef<number | null>(null);
-  const prevKey      = useRef<string>("null");
+  const prevKey      = useRef<string | null>(null);
   const dir          = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((_, delta) => {
     const controls = controlsRef.current;
     if (!controls) return;
 
-    // Detect target change — start one-shot zoom
-    const key = target ? `${target[0].toFixed(1)},${target[2].toFixed(1)}` : "null";
+    if (!target) {
+      // Selected-only mode: when nothing is selected, keep camera fully manual.
+      controls.update();
+      return;
+    }
+
+    // Detect selected target change — start one-shot zoom
+    const key = `${target[0].toFixed(1)},${target[2].toFixed(1)}`;
     if (key !== prevKey.current) {
       prevKey.current = key;
-      targetRadius.current = target ? 42 : 116;
-      if (target) orbitDest.current.set(target[0], 0, target[2]);
-      else        orbitDest.current.set(0, 0, 0);
+      targetRadius.current = 42;
+      orbitDest.current.set(target[0], 0, target[2]);
     }
 
     // Lerp orbit pivot

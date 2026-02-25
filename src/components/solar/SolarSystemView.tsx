@@ -659,19 +659,19 @@ export default function SolarSystemView({ system }: { system: SolarSystem }) {
   const [showRankingMobile, setShowRankingMobile] = useState(false);
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
+    const check = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setStarExpanded(false);
+        setControlsExpanded(false);
+        setShowRankingMobile(false);
+      }
+    };
     check();
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
-
-  useEffect(() => {
-    if (!isMobile) {
-      setStarExpanded(false);
-      setControlsExpanded(false);
-      setShowRankingMobile(false);
-    }
-  }, [isMobile]);
 
   function handlePlanetClick(planet: Planet, pos: THREE.Vector3) {
     void pos;
